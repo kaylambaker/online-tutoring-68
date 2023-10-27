@@ -7,7 +7,6 @@ import {
 import HomePage from './pages/Home';
 import SignupPage from './pages/Signup';
 import TutorProfilePage from './pages/TutorProfile';
-import TutorSearchPage from './pages/TutorSearch';
 import CalendarPage from './pages/MyCalendar'
 import TutorSearchPage from './pages/TutorSearch'
 import TOTPSetup from './pages/TOTPSetup'
