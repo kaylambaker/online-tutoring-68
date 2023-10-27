@@ -1,6 +1,7 @@
 import mysql from 'mysql2'
 import bcrypt from 'bcrypt'
 import Chance from 'chance'
+
 import dotenv from 'dotenv'
 
 const chance = new Chance()
@@ -12,7 +13,6 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE || 'online_tutoring',
-  multipleStatements: true,
 })
 
 const password = await bcrypt.hash('password', 10)
