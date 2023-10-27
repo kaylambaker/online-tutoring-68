@@ -436,15 +436,16 @@ app.delete('/users/profile_picture/:id', (req, res) => {
 //tutor endpoint start
 app.get("/tutors", (req, res) =>{
     const q = "SELECT  \
-      users.FirstName, \
-      users.LastName,\
-      users.Email, \
-      users.HoursCompleted, \
-      tutors.Bio, \
-      tutors.Subject, \
-      tutors.AvailableHoursStart, \
-      tutors.AvailableHoursEnd  \
-      FROM users NATURAL JOIN tutors;" 
+      Users.ID, \
+      Users.FirstName, \
+      Users.LastName,\
+      Users.Email, \
+      Users.HoursCompleted, \
+      Tutors.Bio, \
+      Tutors.Subject, \
+      Tutors.AvailableHoursStart, \
+      Tutors.AvailableHoursEnd  \
+      FROM Users NATURAL JOIN Tutors;" 
     db.query(q, (err, data) =>{
         if(err) return res.json(err)
         return res.json(data)
