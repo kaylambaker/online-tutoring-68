@@ -8,6 +8,8 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import { authenticator } from 'otplib'
+import qrcode from 'qrcode'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -100,120 +102,125 @@ app.put('/students/:id', (req, res) => {
 })
 
 //to show all the appointments
-app.get("/Appointments", (req,res)=>{
-  const q = "SELECT * FROM Appointments"
-  db.query(q,(err,data)=>{
-    if(err) return res.json(err)
+app.get('/Appointments', (req, res) => {
+  const q = 'SELECT * FROM Appointments'
+  db.query(q, (err, data) => {
+    if (err) return res.json(err)
     return res.json(data)
   })
 })
 
 // Endpoint to delete an appointment by appointment Id
-app.delete("/appointments/:id", (req, res) => {
-  const appointmentId = req.params.id;
+app.delete('/appointments/:id', (req, res) => {
+  const appointmentId = req.params.id
 
-  const q = "DELETE FROM Appointments WHERE ID = ?";
+  const q = 'DELETE FROM Appointments WHERE ID = ?'
 
   db.query(q, [appointmentId], (err, data) => {
     if (err) {
-      console.error('Error deleting appointment:', err);
-      return res.status(500).json({ error: 'Error deleting appointment' });
+      console.error('Error deleting appointment:', err)
+      return res.status(500).json({ error: 'Error deleting appointment' })
     }
-    console.log('Appointment deleted successfully');
-    return res.json({ success: true });
-  });
-});
+    console.log('Appointment deleted successfully')
+    return res.json({ success: true })
+  })
+})
 
 // Endpoint to get an appointment by appointment Id
-app.get("/appointments/:id", (req, res) => {
-  const appointmentId = req.params.id;
+app.get('/appointments/:id', (req, res) => {
+  const appointmentId = req.params.id
 
-  const q = "SELECT StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE ID = ?";
+  const q =
+    'SELECT StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE ID = ?'
 
   db.query(q, [appointmentId], (err, data) => {
     if (err) {
-      console.error('Error in getting the appointment:', err);
-      return res.status(500).json({ error: 'Error in selecting the appointment' });
+      console.error('Error in getting the appointment:', err)
+      return res
+        .status(500)
+        .json({ error: 'Error in selecting the appointment' })
     }
 
-    console.log('the selected Appointment');
+    console.log('the selected Appointment')
     //return res.json({ success: true });
-    return res.json(data);
-  });
-});
+    return res.json(data)
+  })
+})
 
 // Endpoint to select an tutor appointment
 // get appointments by tutor ID
-app.get("/appointments/tutor/:id", (req, res) => {
-  const TutorID = req.params.id;
+app.get('/appointments/tutor/:id', (req, res) => {
+  const TutorID = req.params.id
 
-  const q = "SELECT ID, StudentID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE TutorID = ?";
+  const q =
+    'SELECT ID, StudentID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE TutorID = ?'
 
   db.query(q, [TutorID], (err, data) => {
     if (err) {
-      console.error('Error in getting the appointment:', err);
-      return res.status(500).json({ error: 'Error in the appointment' });
+      console.error('Error in getting the appointment:', err)
+      return res.status(500).json({ error: 'Error in the appointment' })
     }
 
-    console.log('the Appointment');
+    console.log('the Appointment')
     //return res.json({ success: true });
-    return res.json(data);
-  });
-});
+    return res.json(data)
+  })
+})
 
 // Endpoint to delete from tutor appointment
 // delete appointment by tutors ID
-app.delete("/appointments/tutor/:id", (req, res) => {
-  const TutorID = req.params.id;
+app.delete('/appointments/tutor/:id', (req, res) => {
+  const TutorID = req.params.id
 
-  const q = "DELETE FROM Appointments WHERE TutorID = ?";
+  const q = 'DELETE FROM Appointments WHERE TutorID = ?'
 
   db.query(q, [TutorID], (err, data) => {
     if (err) {
-      console.error('Error deleting appointment:', err);
-      return res.status(500).json({ error: 'Error deleting appointment' });
+      console.error('Error deleting appointment:', err)
+      return res.status(500).json({ error: 'Error deleting appointment' })
     }
 
-    console.log('Appointment deleted successfully');
-    return res.json({ success: true });
-  });
-});
+    console.log('Appointment deleted successfully')
+    return res.json({ success: true })
+  })
+})
 
 // Endpoint to select an student appointment
 // get appointments by student ID
-app.get("/appointments/student/:id", (req, res) => {
-  const StudentID = req.params.id;
+app.get('/appointments/student/:id', (req, res) => {
+  const StudentID = req.params.id
 
-  const q = "SELECT ID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE StudentID = ?";
+  const q =
+    'SELECT ID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE StudentID = ?'
 
   db.query(q, [StudentID], (err, data) => {
     if (err) {
-      console.error('Error in getting the appointment:', err);
-      return res.status(500).json({ error: 'Error in the appointment' });
+      console.error('Error in getting the appointment:', err)
+      return res.status(500).json({ error: 'Error in the appointment' })
     }
 
-    console.log('the Appointment');
-    return res.json(data);
-  });
-});
+    console.log('the Appointment')
+    return res.json(data)
+  })
+})
 
 // Endpoint to delete from student appointment
 // delete appointment by student ID
-app.delete("/appointments/student/:id", (req, res) => {
-  const StudentID = req.params.id;
+app.delete('/appointments/student/:id', (req, res) => {
+  const StudentID = req.params.id
 
-  const q = "DELETE FROM Appointments WHERE StudentID = ?";
+  const q = 'DELETE FROM Appointments WHERE StudentID = ?'
 
   db.query(q, [StudentID], (err, data) => {
     if (err) {
-      console.error('Error deleting appointment:', err);
-      return res.status(500).json({ error: 'Error deleting appointment' });
+      console.error('Error deleting appointment:', err)
+      return res.status(500).json({ error: 'Error deleting appointment' })
     }
 
-    console.log('Appointment deleted successfully');
-    return res.json({ success: true });
-  });
-});
+    console.log('Appointment deleted successfully')
+    return res.json({ success: true })
+  })
+})
 
 // create new tutor
 // query parameters: none
@@ -296,19 +303,27 @@ app.post('/students', async (req, res) => {
 // parameters: Email and HashedPassword
 // returns: all Users attributes from database
 //          returns 1 user
-app.get('/users/:Email/:HashedPassword', (req, res) => {
-  console.log(req.params.Email)
-  console.log(req.params.HashedPassword)
-  const q =
-    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users where Email=? and HashedPassword=cast(? as binary(16));'
-  const values = [req.params.Email, req.params.HashedPassword]
-  db.query(q, values, (err, data) => {
+app.get('/users/:Email/:Password', async (req, res) => {
+  const getUser = 'select * from Users where Email=?'
+  const getUserNoPassword =
+    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users where Email=?'
+  const values = [req.params.Email]
+  db.query(getUser, values, (err, data) => {
     if (err) return res.status(500).send(err)
     // if no tuples in result
     if (data.length == 0) return res.status(404).send('user not found')
     else if (data.length != 1)
       return res.status(404).send('error, multiple users with same email')
-    else return res.status(200).send(data[0])
+    const user = data[0]
+    bcrypt.compare(req.params.Password, user.HashedPassword, (err2, res2) => {
+      if (err2) return res.status(500).send(err)
+      if (res2) {
+        db.query(getUserNoPassword, [req.params.Email], (err, data) => {
+          if (err) return res.status(500).send(err)
+          return res.status(200).send(data[0])
+        })
+      } else return res.status(401).send('invalid password')
+    })
   })
 })
 
@@ -317,7 +332,8 @@ app.get('/users/:Email/:HashedPassword', (req, res) => {
 // returns: Users natural join Students attributes
 //          returns 1 user
 app.get('/students/:id', (req, res) => {
-  const q = 'select ID,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users natural join Students where ID=?;'
+  const q =
+    'select ID,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users natural join Students where ID=?;'
   db.query(q, req.params.id, (err, data) => {
     if (err) return res.status(500).send(err)
     if (data.length == 0) return res.status(404).send('user not found')
@@ -333,7 +349,8 @@ app.get('/students/:id', (req, res) => {
 // returns: Users natural join Tutors attributes
 //          returns 1 user
 app.get('/tutors/:id', (req, res) => {
-  const q = 'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from Users natural join Tutors where ID=?;'
+  const q =
+    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from Users natural join Tutors where ID=?;'
   db.query(q, req.params.id, (err, data) => {
     if (err) return res.status(500).send(err)
     if (data.length == 0) return res.status(404).send('user not found')
@@ -453,20 +470,61 @@ app.get("/tutors", (req, res) =>{
 })
 
 //end point for delete operation
-app.delete("/tutors/:ID", (req, res)=>{
-    const tutorsID = req.params.ID;
-    const q = "DELETE FROM tutors WHERE ID = ?"
+app.delete('/tutors/:ID', (req, res) => {
+  const tutorsID = req.params.ID
+  const q = 'DELETE FROM tutors WHERE ID = ?'
 
-    db.query(q, [tutorsID], (err, data)=>{
-        if(err) return res.json(err);
-        return res.json("tutors profile has been deleted succeffully.");
-
-    })
+  db.query(q, [tutorsID], (err, data) => {
+    if (err) return res.json(err)
+    return res.json('tutors profile has been deleted succeffully.')
+  })
 })
 
 //tutor endpoint end
 // ................................. ///
 
+// generate qr image
+app.get('/TOTPQRCode/:id', async (req, res) => {
+  const tempSecret = authenticator.generateSecret()
+  const uri = authenticator.keyuri(req.params.id, '2fa', tempSecret)
+  const image = await qrcode.toDataURL(uri)
+  const q = 'update Users set TOTPTempSecret=? where ID=?;'
+  db.query(q, [tempSecret, req.params.id], (err, data) => {
+    if (err) return res.status(500).send(err)
+    return res.send({ image })
+  })
+})
+
+// set 2fa secret
+app.get('/setTOTP/:id/:code', (req, res) => {
+  const getUser = 'select * from Users where ID=?;'
+  const setSecret = 'update Users set TOTPSecret=?,TOTPEnabled=true where ID=?;'
+  db.query(getUser, req.params.id, (err, data) => {
+    // verify code is correct
+    if (err) return res.status(500).send(err)
+    const user = data[0]
+    const verified = authenticator.check(req.params.code, user.TOTPTempSecret)
+    if (!verified) return res.status(500).send('invalid code')
+    db.query(setSecret, [user.TOTPTempSecret, user.ID], (err2, data2) => {
+      // set user secret to tempSecret
+      if (err2) return res.status(500).send(err2)
+      return res.status(200).send(data2)
+    })
+  })
+})
+
+// verify login with 2fa
+app.get('/users/verifyTOTP/:id/:code', (req, res) => {
+  const getUser = 'select * from Users where ID=?;'
+  db.query(getUser, req.params.id, (err, data) => {
+    if (err) return res.status(404).send(err)
+    if (data.length === 0) return res.status(404).send('invalid username')
+    const user = data[0]
+    const verified = authenticator.check(req.params.code, user.TOTPSecret)
+    if (!verified) return res.status(401).send('invalid code')
+    return res.status(200).send(data)
+  })
+})
 
 app.listen(8800, () => {
   console.log('connected to backend!')

@@ -9,6 +9,8 @@ import SignupPage from './pages/Signup';
 import TutorProfilePage from './pages/TutorProfile';
 import TutorSearchPage from './pages/TutorSearch';
 import CalendarPage from './pages/MyCalendar'
+import TutorSearchPage from './pages/TutorSearch'
+import TOTPSetup from './pages/TOTPSetup'
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
             <Route path="/tutor/:id" element={<TutorProfilePage/>} />
             <Route path="/tutor/search" element={<TutorSearchPage/>} />
             <Route path="/calendar" element={<CalendarPage/>} />
+            <Route path="/TOTPSetup" element={<TOTPSetup/>} />
           </Routes>
         </BrowserRouter>
       </div>

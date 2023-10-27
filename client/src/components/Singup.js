@@ -4,7 +4,9 @@ import FormSelect from './FormSelect'
 import FormGroupCheckbox from './FormGroupCheckbox'
 import FormTextArea from './FormTextArea'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
+let navigate
 const userTypeOptions = [
     {value: 0, label: 'Student'},
     {value: 1, label: 'Tutor'}
@@ -77,7 +79,8 @@ function submitForm(event) {
         }
         axios.post(`http://localhost:8800/${apiEndpoint}`, data)
         .then((response)=>{
-            alert('Account created successfully!')
+            navigate('/TOTPSetup')
+            // alert('Account created successfully!')
         }).catch((error)=>{
             alert(error.response.data.sqlMessage || error.response.data.message || error)
         });
@@ -103,6 +106,7 @@ function validatePassword(){
     }
 }
 export default function Singup(){
+    navigate = useNavigate()
     const [signupState,setSignupState]=useState(initialState);
 
     const handleInputChange=(e)=>setSignupState({...signupState,[e.target.id]:e.target.value});
