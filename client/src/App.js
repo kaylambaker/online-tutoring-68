@@ -7,7 +7,8 @@ import {
 import HomePage from './pages/Home';
 import SignupPage from './pages/Signup';
 import TutorProfilePage from './pages/TutorProfile';
-import TutorSearchPage from './pages/TutorSearch'
+import TutorSearchPage from './pages/TutorSearch';
+import CalendarPage from './pages/MyCalendar'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/signup" element={<SignupPage/>} />
             <Route path="/tutor/:id" element={<TutorProfilePage/>} />
             <Route path="/tutor/search" element={<TutorSearchPage/>} />
+            <Route path="/calendar" element={<CalendarPage/>} />
           </Routes>
         </BrowserRouter>
       </div>
