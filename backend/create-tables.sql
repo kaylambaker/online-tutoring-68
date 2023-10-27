@@ -3,10 +3,13 @@ create table if not exists Users (
   Email varchar(255) not null unique,
   FirstName varchar(255) not null,
   LastName varchar(255) not null,
-  HashedPassword binary(64) not null,
+  HashedPassword varchar(60) not null,
   HoursCompleted int not null,
   ProfilePictureID varchar(255),
-  IsTutor boolean not null
+  IsTutor boolean not null,
+  TOTPEnabled boolean not null default false,
+  TOTPSecret varchar(100),
+  TOTPTempSecret varchar(100)
 );
 create table if not exists Students (
   ID int primary key,
