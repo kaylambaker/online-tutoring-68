@@ -2,13 +2,17 @@ import mysql from 'mysql2'
 import bcrypt from 'bcrypt'
 import Chance from 'chance'
 
+import dotenv from 'dotenv'
+
 const chance = new Chance()
 
+dotenv.config({ path: './.env' })
+
 const db = mysql.createConnection({
-  host: 'localhost',
-  database: 'script_test',
-  user: 'root',
-  multipleStatements: true,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE || 'online_tutoring',
 })
 
 const password = await bcrypt.hash('password', 10)
