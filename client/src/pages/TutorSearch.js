@@ -10,11 +10,8 @@ const TutorSearchPage = () => {
   useEffect(() => {
     axios
       .get('http://localhost:8800/tutors')
-      .catch((err) => {
-        if (err.response) console.log(err.response)
-        else console.log(err)
-      })
       .then((res) => setTutors(res.data))
+      .catch(console.log)
   })
   return (
     <div>
