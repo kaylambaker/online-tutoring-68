@@ -1,5 +1,5 @@
 import { InputGroup, Form, Container, Table } from 'react-bootstrap'
-import axios from 'axios'
+import axios from '../config/axios'
 import { React, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,12 +7,22 @@ const TutorSearchPage = () => {
   let navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [tutors, setTutors] = useState([])
+  const [user, setUser] = useState(null)
   useEffect(() => {
     axios
       .get('http://localhost:8800/tutors')
       .then((res) => setTutors(res.data))
       .catch(console.log)
-  })
+    axios
+      .get('http://localhost:8800/users/session')
+      .then((res) => {
+        setUser(res.data)
+      })
+      .catch((err) => {
+        if (err.response.status == 404) alert('no user logged in')
+        else console.log(err)
+      })
+  }, [])
   return (
     <div>
       <Container>

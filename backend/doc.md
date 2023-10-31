@@ -235,6 +235,39 @@ returns
 
 ## /users
 
+### get /users/session - retrieve the session user
+
+request parameters
+
+* none
+
+body parameters
+
+* none
+
+returns
+
+* on success, status code 200 and the session user object
+* on failure, status code 404 and message 'no session user'
+
+
+### delete /users/session - end session
+
+request parameters 
+
+* none
+
+body parameters
+
+* none
+
+returns
+
+* on success, status code 200 and message 'session ended'
+* on failure
+    + if unable to delete session, status code 400 and message 'unable to end session'
+    + if there is no session to delete, status code 404 and message 'unable to end session'
+
 ### get /users/:Email/:Password - get user identified by Email and Password
 
 request parameters
@@ -253,6 +286,8 @@ returns
     + if there is no user with the given Email, status code 404 and message 'user not found'
     + if the given password is incorrect, status code 401 and message 'invalid password'
     + if other errors, status code 500 and error message
+
+getting a user sets the session user the session user
 
 ## /users/profile_picture
 
@@ -393,6 +428,61 @@ returns
 + on success, status 200 and success: true
 + on failure, status code 500 and error: 'Error deleting appointment' 
 
+### get /TOTPQRCode:/id - generate a TOTP QR code for the user identified by id
+
+request parameters
+
+* user ID
+
+body parameters
+
+* none
+
+returns 
+
+* on success, status code 200 and QR image
+    + image can be accessed with the response data attribute like ```res.data.image```
+* on failure, status code 500 and the error message
+
+### get /setTOTP/:id/:code - set the TOTP secret for user identified by id
+
+request parameters
+
+* user ID
+* TOTP code
+
+body parameters
+
+* none
+
+returns
+
+* on success, status code 200 and sql message for updating the user's TOTPSecret
+* on failure
+    + if the TOTP code is invalid, status code 401 and message 'invalid code'
+    + if another failure occurs, status code 500 and error message
+
+### get /verifyTOTP/:id/:code - verify the TOTP code for user identified by id
+
+request parameters
+
+* user ID
+* TOTP code
+
+body parameters
+
+* none
+
+returns
+
+* on success, status code 200 and sql message from retrieving user from database
+* on failure
+    + if the TOTP code is invalid, status code 401 and message 'invalid code'
+    + if the user ID is invalid, status code 404 and message 'invalid user ID'
+    + other errors, status code 500 and error message
+
+
+
 # create-tables.sql
 
 the create-tables.sql file can be run in a local instance of mysql to create the database schema
@@ -400,3 +490,38 @@ the create-tables.sql file can be run in a local instance of mysql to create the
 # test-data.js
 
 test-data.js can be run using node from the command line. test-data.js populates the database with test data using bcrypt to encrypt the passwords. All of the test users have the password of 'password'. to run the script type ```node test-data.js``` into the command line
+
+# session user - ```req.session.user```
+
+The session user is set when successfully logging in with the /users/:Email/:Password endpoint. The session user has all user attributes and the boolean attribute SessionTOTPVerified. If SessionTOTPVerified = false, the user should be redirected to the /VerifyTOTP page
+
+example session tutor user
+
+```
+{
+  ID: 70,
+  Email: 'ruha@helsinhi.sr',
+  FirstName: 'Catherine',
+  LastName: 'Gill',
+  HoursCompleted: 0,
+  ProfilePictureID: null,
+  IsTutor: 1,
+  TOTPEnabled: 0,
+  SessionTOTPVerified: false
+}
+```
+
+example session student user
+
+```
+{ 
+  ID: 53,
+  Email: 'tosso@jimmus.gf',
+  FirstName: 'Troy',
+  LastName: 'Ellis',
+  HoursCompleted: 0,
+  ProfilePictureID: null,
+  IsTutor: 0,
+  SessionTOTPVerified: false
+}
+```

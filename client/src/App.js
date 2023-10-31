@@ -10,6 +10,7 @@ import TutorProfilePage from './pages/TutorProfile';
 import CalendarPage from './pages/MyCalendar'
 import TutorSearchPage from './pages/TutorSearch'
 import TOTPSetup from './pages/TOTPSetup'
+import TOTPVerify from './pages/TOTPVerify'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/tutor/search" element={<TutorSearchPage/>} />
             <Route path="/calendar" element={<CalendarPage/>} />
             <Route path="/TOTPSetup" element={<TOTPSetup/>} />
+            <Route path="/TOTPVerify" element={<TOTPVerify/>} />
           </Routes>
         </BrowserRouter>
       </div>
