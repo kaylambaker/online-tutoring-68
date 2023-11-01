@@ -1,27 +1,36 @@
-import logo from "./logo.svg";
-import "./App.css";
-import * as React from "react";
-import TutorEditProfile from "./pages/tutoredit";
-import { createRoot } from "react-dom/client";
+import './App.css';
 import {
-  createBrowserRouter,
-  RouterProvider,
-  Route,
-  Link,
   BrowserRouter,
   Routes,
-} from "react-router-dom";
+  Route,
+} from 'react-router-dom';
+import HomePage from './pages/Home';
+import SignupPage from './pages/Signup';
+import TutorProfilePage from './pages/TutorProfile';
+import CalendarPage from './pages/MyCalendar'
+import TutorSearchPage from './pages/TutorSearch'
+import TOTPSetup from './pages/TOTPSetup'
+import TOTPVerify from './pages/TOTPVerify'
+import TutorEditProfile from "./pages/tutoredit";
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
+      <div className="max-w-md w-full space-y-8">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage/>} />
+            <Route path="/signup" element={<SignupPage/>} />
+            <Route path="/tutor/:id" element={<TutorProfilePage/>} />
+            <Route path="/tutor/search" element={<TutorSearchPage/>} />
+            <Route path="/calendar" element={<CalendarPage/>} />
+            <Route path="/TOTPSetup" element={<TOTPSetup/>} />
+            <Route path="/TOTPVerify" element={<TOTPVerify/>} />
           <Route path="/tutoredit" element={<TutorEditProfile />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+          </Routes>
+        </BrowserRouter>
+      </div>
   );
 }
 
 export default App;
+
