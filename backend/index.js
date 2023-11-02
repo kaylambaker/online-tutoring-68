@@ -33,10 +33,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'csproject',
-  database: 'calendar_db',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE || 'online_tutoring',
 })
 
 // modify tutor, everything but ID, Email, and IsTutor
