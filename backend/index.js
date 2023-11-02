@@ -1,5 +1,5 @@
 import express from 'express'
-import mysql from 'mysql'
+import mysql from 'mysql2'
 import cors from 'cors'
 import bcrypt from 'bcrypt'
 import multer from 'multer'
@@ -33,10 +33,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE || 'online_tutoring',
+  host: 'localhost',
+  user: 'root',
+  password: 'csproject',
+  database: 'calendar_db',
 })
 
 // modify tutor, everything but ID, Email, and IsTutor
@@ -212,6 +212,36 @@ app.delete("/appointments/student/:id", (req, res) => {
 
     console.log('Appointment deleted successfully');
     return res.json({ success: true });
+  });
+});
+
+app.post('/createAppointment', (req, res) => {
+  const {
+    studentID,
+    tutorID,
+    appointmentDate,
+    startTime,
+    endTime,
+  } = req.body;
+
+  // Define default values for optional fields
+  const defaultSubject = 'Default Subject';
+  const defaultNotes = 'Default Notes';
+  const defaultMeetingLink = null;
+
+  const insertQuery = `INSERT INTO Appointments 
+    (StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+  const values = [studentID, tutorID, appointmentDate, startTime, endTime, defaultSubject, defaultNotes, defaultMeetingLink];
+
+  db.query(insertQuery, values, (err, result) => {
+    if (err) {
+      console.error('Error creating appointment:', err);
+      return res.status(400).json({ error: 'Error creating appointment' });
+    }
+    //console.log('Appointment created successfully');
+    return res.status(201).json({ success: true });
   });
 });
 
