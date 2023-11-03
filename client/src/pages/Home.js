@@ -1,3 +1,4 @@
+import axios from '../config/axios'
 export default function HomePage() {
     return (
         <div>

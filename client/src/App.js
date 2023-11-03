@@ -7,12 +7,14 @@ import {
 import HomePage from './pages/Home';
 import SignupPage from './pages/Signup';
 import TutorProfilePage from './pages/TutorProfile';
-import TutorSearchPage from './pages/TutorSearch';
 import CalendarPage from './pages/MyCalendar'
+import TutorSearchPage from './pages/TutorSearch'
+import TOTPSetup from './pages/TOTPSetup'
+import TOTPVerify from './pages/TOTPVerify'
+import TutorEditProfile from "./pages/tutoredit";
 
 function App() {
   return (
-    <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <BrowserRouter>
           <Routes>
@@ -21,10 +23,12 @@ function App() {
             <Route path="/tutor/:id" element={<TutorProfilePage/>} />
             <Route path="/tutor/search" element={<TutorSearchPage/>} />
             <Route path="/calendar" element={<CalendarPage/>} />
+            <Route path="/TOTPSetup" element={<TOTPSetup/>} />
+            <Route path="/TOTPVerify" element={<TOTPVerify/>} />
+          <Route path="/tutoredit" element={<TutorEditProfile />} />
           </Routes>
         </BrowserRouter>
       </div>
-    </div>
   );
 }
 
