@@ -4,7 +4,9 @@ import FormSelect from './FormSelect'
 import FormGroupCheckbox from './FormGroupCheckbox'
 import FormTextArea from './FormTextArea'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
+let navigate
 const userTypeOptions = [
     {value: 0, label: 'Student'},
     {value: 1, label: 'Tutor'}
@@ -49,7 +51,7 @@ let initialState={
 
 function submitForm(event) {
     const form = document.getElementById('registration-form');
-    if (form.checkValidity()){
+    if (form.checkValidity() && validatePassword()){ 
         event.preventDefault();
         const data = { 
             FirstName: document.getElementById('firstname').value,
@@ -77,16 +79,34 @@ function submitForm(event) {
         }
         axios.post(`http://localhost:8800/${apiEndpoint}`, data)
         .then((response)=>{
-            alert('Account created successfully!')
+            navigate('/TOTPSetup')
+            // alert('Account created successfully!')
         }).catch((error)=>{
-            alert(error.response.data.sqlMessage || error)
+            alert(error.response.data.sqlMessage || error.response.data.message || error)
         });
     } else {
+        event.preventDefault();
         return false;
     }
 }
-
+function validatePassword(){
+    const password = document.getElementById('password').value;
+    const confirm_password= document.getElementById('confirm_password').value;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+    if(passwordRegex.test(password)){
+        if(password == confirm_password){
+            return true;
+        }
+        alert("Confirm password and password does not match!")
+        return false;
+    }
+    else{
+        alert("Password must be at least 8 characters,one capital letter,one special character,and at least one digit")
+        return false;
+    }
+}
 export default function Singup(){
+    navigate = useNavigate()
     const [signupState,setSignupState]=useState(initialState);
 
     const handleInputChange=(e)=>setSignupState({...signupState,[e.target.id]:e.target.value});
