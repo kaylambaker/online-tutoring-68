@@ -7,6 +7,9 @@ const TutorEditProfile = () => {
     bio: "",
     email: "",
     subject: "",
+    firstname: "",
+    lastname: "",
+    hourscompleted: 0,
   });
   //const [selectedFile, setSelectedFile] = useState(null);
 
@@ -22,12 +25,14 @@ const TutorEditProfile = () => {
           bio: tutorData.Bio || "",
           email: tutorData.Email || "",
           subject: tutorData.Subject || "",
-          firstname: tutorData.FirstName || "",
-          lastname: tutorData.LastName || "",
+          firstname: tutorData.FirstName,
+          lastname: tutorData.LastName,
           hourstart: tutorData.AvailableHoursStart || "",
           hourend: tutorData.AvailableHoursEnd || "",
+          hourscompleted: tutorData.HoursComplete || 0,
           profilepicture: tutorData.ProfilePictureID || "",
         });
+        console.log("Tutor Data:", tutorData);
       } catch (err) {
         console.log(err);
       }
@@ -44,6 +49,7 @@ const TutorEditProfile = () => {
         Subject: tutor.subject,
         FirstName: tutor.firstname,
         LastName: tutor.lastname,
+        HoursComplete: tutor.hourscompleted,
         AvailableHoursStart: tutor.hourstart,
         AvailableHoursEnd: tutor.hourend,
       };

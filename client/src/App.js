@@ -1,30 +1,33 @@
-import './App.css';
+import "./App.css";
+import * as React from "react";
+import CalendarPage from "./pages/MyCalendar";
+import TutorEditProfile from "./pages/TutorEditProfile";
+import StudentEditProfile from "./pages/StudentEditProfile";
+import StudentDashboard from "./pages/StudentDashboard";
+
+import { createRoot } from "react-dom/client";
 import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Link,
   BrowserRouter,
   Routes,
-  Route,
-} from 'react-router-dom';
-import HomePage from './pages/Home';
-import SignupPage from './pages/Signup';
-import TutorProfilePage from './pages/TutorProfile';
-import TutorSearchPage from './pages/TutorSearch'
+} from "react-router-dom";
 
 function App() {
   return (
-    <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage/>} />
-            <Route path="/signup" element={<SignupPage/>} />
-            <Route path="/tutor/:id" element={<TutorProfilePage/>} />
-            <Route path="/tutor/search" element={<TutorSearchPage/>} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/tutoredit" element={<TutorEditProfile />} />
+          <Route path="/studentedit" element={<StudentEditProfile />} />
+          <Route path="/studentdashboard" element={<StudentDashboard />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
 
 export default App;
-

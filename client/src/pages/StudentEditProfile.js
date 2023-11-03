@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
-import profileImage from "../profile.jpg";
+//import profileImage from "../profile.jpg";
 import "../App.css";
 import axios from "axios";
 
 const StudentEditProfile = () => {
   const [student, setStudent] = useState({
-    name: "",
+    firstname: "",
+    lastname: "",
+    hourscompleted: 0, // Thêm giá trị HoursCompleted mặc định
   });
-  const [selectedFile, setSelectedFile] = useState(null);
+  //const [selectedFile, setSelectedFile] = useState(null);
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
         const res = await axios.get("http://localhost:8800/students/2");
-        console.log(res);
+        //console.log(res);
         const studentData = res.data;
         // Set the fetched data into the state
         setStudent({
           firstname: studentData.FirstName || "",
           lastname: studentData.LastName || "",
           profilepicture: studentData.ProfilePictureID || "",
+          hourscompleted: studentData.HoursCompleted || 0,
         });
         console.log("Student Data:", studentData);
       } catch (err) {
@@ -33,11 +36,12 @@ const StudentEditProfile = () => {
       const updatedData = {
         FirstName: student.firstname,
         LastName: student.lastname,
+        HoursCompleted: student.hourscompleted,
       };
 
       // Send a PUT request to update the tutor's data in the database
       const response = await axios.put(
-        "http://localhost:8800/users/2",
+        "http://localhost:8800/students/2",
         updatedData
       );
       console.log(updatedData);
@@ -95,12 +99,21 @@ const StudentEditProfile = () => {
       {/* Name input */}
       <div className="input-container">
         <label htmlFor="firstname">First Name: {student.firstname} </label>
-
         <input type="text" placeholder="First name" name="firstname" required />
         <label htmlFor="lastname">Last Name: {student.lastname} </label>
         <input type="text" placeholder="Last name" name="lastname" required />
+        <label htmlFor="hourscompleted">
+          Hours Completed: {student.hourscompleted}{" "}
+        </label>
+        <input
+          type="text"
+          placeholder="Hours completed"
+          name="hourscompleted"
+          required
+        />
       </div>
       <button onClick={handleSaveChanges}>Save Changes</button>
     </div>
   );
+};
 export default StudentEditProfile;
