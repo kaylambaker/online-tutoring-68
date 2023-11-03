@@ -289,24 +289,25 @@ app.get('/images/:path', (req, res) => {
   return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
 })
 
-// -----------------------------------------------------------------------------------------------------------------------//
+/**********************************************************************************************************************************************************/
 //tutor endpoint start
-app.get("/tutors", (req, res) =>{
-    const q = "SELECT 
-      users.FirstName,
-      users.LastName,
-      users.Email,
-      users.HoursCompleted,
-      tutors.Bio,
-      tutors.Subject,
-      tutors.AvailableHoursStart,
-      tutors.AvailableHoursEnd 
-      FROM users NATURAL JOIN tutors;   //removed the where isTutors = True
-    db.query(q, (err, data) =>{
-        if(err) return res.json(err)
-        return res.json(data)
-    })
-})
+
+app.get('/tutors/:id', (req, res) => {
+    const tutorID = req.params.id;
+    const q = `
+      SELECT
+        users.ID,
+        users.FirstName,
+        users.LastName,
+        users.Email,
+        users.HoursCompleted,
+        tutors.Bio,
+        tutors.Subject,
+        tutors.AvailableHoursStart,
+        tutors.AvailableHoursEnd
+      FROM users
+      INNER JOIN tutors ON users.ID = tutors.ID
+      WHERE users.ID = ?;`;
 
 app.post("/tutors", (req, res)=>{
     const q = "INSERT INTO tutors (`Bio`, `Subject`, `AvailableHoursStart`, `AvailableHoursEnd`) VALUES(?)";
@@ -322,18 +323,6 @@ app.post("/tutors", (req, res)=>{
         return res.json("tutors has been created succeffully.");
     });
 });
-
-//end point for delete operation
-app.delete("/tutors/:ID", (req, res)=>{
-    const tutorsID = req.params.ID;
-    const q = "DELETE FROM tutors WHERE ID = ?"
-
-    db.query(q, [tutorsID], (err, data)=>{
-        if(err) return res.json(err);
-        return res.json("tutors profile has been deleted succeffully.");
-
-    })
-})
 
 
 //end point for update operation
@@ -357,9 +346,37 @@ app.put("/tutors/:ID", (req, res)=>{
 
     })
 })
+/*****************************************************************************************************************************
+app.get("/tutors", (req, res) =>{
+    const q = "SELECT 
+      users.FirstName,
+      users.LastName,
+      users.Email,
+      users.HoursCompleted,
+      tutors.Bio,
+      tutors.Subject,
+      tutors.AvailableHoursStart,
+      tutors.AvailableHoursEnd 
+      FROM users NATURAL JOIN tutors;   //removed the where isTutors = True
+    db.query(q, (err, data) =>{
+        if(err) return res.json(err)
+        return res.json(data)
+    })
+})
+//end point for delete operation
+app.delete("/tutors/:ID", (req, res)=>{
+    const tutorsID = req.params.ID;
+    const q = "DELETE FROM tutors WHERE ID = ?"
 
+    db.query(q, [tutorsID], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors profile has been deleted succeffully.");
+
+    })
+})
+******************************************************************************************************************************/
 //tutor endpoint end
-// ................................. ///
+/********************************************************************************************************************************************************/
 
 
 app.listen(8800, () => {
