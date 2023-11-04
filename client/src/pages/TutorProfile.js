@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams } from "react-router-dom"
-import axios from 'axios'
+import axios from '../config/axios'
 
 export default function TutorProfilePage() {
     let { id } = useParams()
+  const [user,setUser]=useState(null)
     const [tutor, setTutor] = useState({
         id: id,
         first_name: "",
@@ -36,6 +37,28 @@ export default function TutorProfilePage() {
                 alert(error.response.data.sqlMessage || error)
             });
     }, [])
+    useEffect(()=>{ // get session user
+      axios.get('/users/session')
+        .then(res=>{
+          setUser(res.data)
+        })
+        .catch(err=>{
+          if(err.response.status==404) alert("no user loggedin")
+          else console.log(err)
+        })
+    },[])
+    const addFavorites=()=>{
+      axios.post('/students/favorites_list/'+user.ID+'/'+tutor.id)
+    .then(res=>{alert("tutor added to favorites list")})
+      .catch(err=>{
+        // if sql primary key error
+        if(err.response.data.errno==1062) alert("this tutor is already on your favorites list")
+        else {
+          console.log(err)
+          alert("unable to add tutor to favorites list")
+        }
+      })
+    }
     return (
         <div className="flex flex-col gap-2 bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
             <img src={tutor.profile_picture_url} className="rounded-xl w-1/2" />
@@ -66,6 +89,10 @@ export default function TutorProfilePage() {
                     Show Bookings
                 </a>
             </div>
+        {user &&user.IsTutor==0 &&
+            (<div>
+                <button onClick={addFavorites}>add to favorites list</button>
+            </div>)}
         </div>
     )
 }

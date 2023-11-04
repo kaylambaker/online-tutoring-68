@@ -1,7 +1,8 @@
-import axios from '../config/axios'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Form, InputGroup, Button } from 'react-bootstrap'
+import axios from '../config/axios'
+
 const TOTPVerify = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
@@ -16,7 +17,7 @@ const TOTPVerify = () => {
       })
       .catch((err) => {
         // if no session user, go to login
-        if (err.response.status == 404) alert('no user logged in')
+        if (err.response.status == 404) navigate('/login')
         else console.log(err)
       })
   }, [])

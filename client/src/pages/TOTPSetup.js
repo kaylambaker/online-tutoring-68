@@ -11,26 +11,36 @@ const TOTPSetup = () => {
       .get('/users/session')
       .then((res) => {
         setUser(res.data)
+        if (!res.data.SessionTOTPVerified && res.data.TOTPEnabled == 1)
+          navigate('/TOTPVerify')
+        if (res.data.TOTPEnabled == 1)
+          alert(
+            'You have already enabled TOTP 2FA. If you scan the QR code with another authenticator app, your previous TOTP codes will not work',
+          )
         axios
           .get('/TOTPQRCode/' + res.data.ID)
           .then((res) => setImage(res.data.image))
           .catch(console.log)
       })
-      .catch(err => {
+      .catch((err) => {
         // no user logged in
-        if (err.response.status == 404) alert('no user logged in')
+        if (err.response.status == 404) {
+          alert('no user logged in')
+          navigate('/login')
+        }
       })
   }, [])
   const [image, setImage] = useState(null)
   const [code, setCode] = useState('')
   const validateCode = () => {
     axios
-      .get('http://localhost:8800/setTOTP/' + user.ID + '/' + code)
+      .get('/setTOTP/' + user.ID + '/' + code)
       .then((res) => {
         alert('2FA enabled :)')
       })
       .catch((err) => {
         alert('Unable to setup 2FA. Make sure TOTP code was inputed correctly')
+        console.log(err)
       })
   }
   return (

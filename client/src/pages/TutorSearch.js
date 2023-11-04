@@ -14,12 +14,13 @@ const TutorSearchPage = () => {
       .then((res) => setTutors(res.data))
       .catch(console.log)
     axios
-      .get('http://localhost:8800/users/session')
+      .get('/users/session')
       .then((res) => {
         setUser(res.data)
+        if(!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
       })
       .catch((err) => {
-        if (err.response.status == 404) alert('no user logged in')
+        if (err.response.status == 404) navigate('/login')
         else console.log(err)
       })
   }, [])
