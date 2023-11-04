@@ -1,5 +1,5 @@
 import express from 'express'
-import mysql from 'mysql'
+import mysql from 'mysql2'
 import cors from 'cors'
 import bcrypt from 'bcrypt'
 import multer from 'multer'
@@ -243,6 +243,36 @@ app.delete('/appointments/student/:id', (req, res) => {
     return res.json({ success: true })
   })
 })
+
+app.post('/createAppointment', (req, res) => {
+  const {
+    studentID,
+    tutorID,
+    appointmentDate,
+    startTime,
+    endTime,
+  } = req.body;
+
+  // Define default values for optional fields
+  const defaultSubject = 'Default Subject';
+  const defaultNotes = 'Default Notes';
+  const defaultMeetingLink = null;
+
+  const insertQuery = `INSERT INTO Appointments 
+    (StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+  const values = [studentID, tutorID, appointmentDate, startTime, endTime, defaultSubject, defaultNotes, defaultMeetingLink];
+
+  db.query(insertQuery, values, (err, result) => {
+    if (err) {
+      console.error('Error creating appointment:', err);
+      return res.status(400).json({ error: 'Error creating appointment' });
+    }
+    //console.log('Appointment created successfully');
+    return res.status(201).json({ success: true });
+  });
+});
 
 // create new tutor
 // query parameters: none
@@ -497,7 +527,7 @@ app.delete('/users/profile_picture/:id', (req, res) => {
 //   return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
 // })
 
-// -----------------------------------------------------------------------------------------------------------------------//
+/**********************************************************************************************************************************************************/
 //tutor endpoint start
 app.get('/tutors', (req, res) => {
   const q =
