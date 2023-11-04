@@ -13,6 +13,7 @@ import TutorSearchPage from './pages/TutorSearch'
 import TOTPSetup from './pages/TOTPSetup'
 import TOTPVerify from './pages/TOTPVerify'
 import TutorEditProfile from "./pages/tutoredit";
+import TempLogin from './pages/tempLogin'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/TOTPSetup" element={<TOTPSetup/>} />
             <Route path="/TOTPVerify" element={<TOTPVerify/>} />
           <Route path="/tutoredit" element={<TutorEditProfile />} />
+            <Route path="/login" element={<TempLogin/>} />
           </Routes>
         </BrowserRouter>
       </div>

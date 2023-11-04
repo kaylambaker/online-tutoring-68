@@ -481,7 +481,22 @@ returns
     + if the user ID is invalid, status code 404 and message 'invalid user ID'
     + other errors, status code 500 and error message
 
+### get /hoursCompleted/:id - get the hours completed by the user identified by id
 
+request parameters
+
+* user ID
+
+body parameters
+
+* none
+
+returns
+
+* on success, status code 200 and json object ```{ HoursCompleted: X }```
+* on failure
+    + if there is no user with the provided ID, status code 404 and message 'user not found'
+    + if there is another error, status code 500 and the error message
 
 # create-tables.sql
 

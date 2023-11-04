@@ -380,7 +380,7 @@ app.get('/users/:Email/:Password', async (req, res) => {
   const getTutor =
     'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Tutors where Email=?'
   const getStudent =
-    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users natural join Students where Email=?'
+    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=?'
   const values = [req.params.Email]
   let getNoPassword = ''
   db.query(getUser, values, (err, data) => {
@@ -398,7 +398,7 @@ app.get('/users/:Email/:Password', async (req, res) => {
         db.query(getNoPassword, [req.params.Email], (err, data) => {
           if (err) return res.status(500).send(err)
           req.session.user = { ...data[0], SessionTOTPVerified: false }
-          return res.status(200).send(data[0])
+          return res.status(200).send(req.session.user)
         })
       } else return res.status(401).send('invalid password')
     })
@@ -603,6 +603,27 @@ app.get('/verifyTOTP/:id/:code', (req, res) => {
     if (!verified) return res.status(401).send('invalid code')
     req.session.user.SessionTOTPVerified = true
     return res.status(200).send(data)
+  })
+})
+
+// calculate hours completed using the number of past appointments
+app.get('/hoursCompleted/:id', (req, res) => {
+  const hours =
+    'select sum(Duration) as HoursCompleted from \
+    (select timestampdiff(HOUR,timestamp(AppointmentDate,StartTime), \
+    timestamp(AppointmentDate,EndTime)) \
+    as Duration from Appointments \
+    where (StudentID=? or TutorID=?) and timestamp(AppointmentDate,EndTime)<now()) as t;'
+  const userExists = 'select * from Users where ID=?;'
+  db.query(userExists, req.params.id, (err, data) => {
+    if (err) return res.status(500).send(err)
+    if (data.length == 0) return res.status(404).send('user not found')
+    db.query(hours, [req.params.id, req.params.id], (err, data) => {
+      if (err) return res.status(500).send(err)
+      if (data[0].HoursCompleted == null)
+        return res.status(200).send({ HoursCompleted: 0 })
+      return res.status(200).send(data[0])
+    })
   })
 })
 
