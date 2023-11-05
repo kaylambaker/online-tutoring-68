@@ -8,7 +8,8 @@ export default function FormInput({
     isRequired=false,
     id,
     name,
-    customClass
+    customClass,
+    onChange
 }){
     return(
         <div className="flex flex-col pb-4">
@@ -21,6 +22,7 @@ export default function FormInput({
                 required={isRequired}
                 placeholder={placeholder}
                 className={fixedInputClass+customClass}
+                onChange={onChange}
             ></input>
         </div>
     )

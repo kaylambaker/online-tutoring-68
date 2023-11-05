@@ -13,7 +13,8 @@ import TutorSearchPage from './pages/TutorSearch'
 import TOTPSetup from './pages/TOTPSetup'
 import TOTPVerify from './pages/TOTPVerify'
 import TutorEditProfile from "./pages/tutoredit";
-import TempLogin from './pages/tempLogin'
+import Login from './pages/Login'
+import Logout from './pages/Logout'
 
 function App() {
   return (
@@ -27,8 +28,9 @@ function App() {
             <Route path="/calendar" element={<CalendarPage/>} />
             <Route path="/TOTPSetup" element={<TOTPSetup/>} />
             <Route path="/TOTPVerify" element={<TOTPVerify/>} />
-          <Route path="/tutoredit" element={<TutorEditProfile />} />
-            <Route path="/login" element={<TempLogin/>} />
+            <Route path="/tutoredit" element={<TutorEditProfile />} />
+            <Route path="/login" element={<Login/>} />
+            <Route path="/logout" element={<Logout/>} />
           </Routes>
         </BrowserRouter>
       </div>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
+import FormInput from '../components/FormInput'
 
-const TempLogin = () => {
+const Login = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -42,6 +43,7 @@ const TempLogin = () => {
           'logged in as ' + res.data.FirstName + ' ' + res.data.LastName,
         )
         setLoggedin(true)
+        res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
       })
       .catch((err) => {
         if (err.response && err.response.status == 404);
@@ -49,34 +51,40 @@ const TempLogin = () => {
       })
   }, [])
   return (
-    <div>
-      <h1>{loginStatus}</h1>
-      {!loggedin && (
-        <div>
-          <input
-            type="text"
-            placeholder="email"
-            onChange={(e) => setEmail(e.target.value)}
+    <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
+      <div className="flex flex-col pb-10 place-items-center">
+        <h1 className="text-2xl text-blue-500">Welcome to</h1>
+        <h1 className="text-2xl text-blue-500">Online Tutoring</h1>
+      </div>
+      <div>
+        <form id="login-form">
+          <FormInput 
+              id='email'
+              name='email'
+              labelText='Email Address'
+              type='email'
+              isRequired={true}
+              placeholder='Email'
+              onChange={(e) => setEmail(e.target.value)}
           />
-          <br />
-          <input
-            type="password"
-            placeholder="password"
-            onChange={(e) => setPassword(e.target.value)}
+          <FormInput 
+              id='password'
+              name='password'
+              labelText='Password'
+              type='password'
+              isRequired={true}
+              placeholder='****'
+              onChange={(e) => setPassword(e.target.value)}
           />
-          <br />
-          <button onClick={login}>login</button>
-          <br />
-        </div>
-      )}
-      {loggedin && (
-        <div>
-          <button onClick={logout}>logout</button>
-          <br />
-        </div>
-      )}
+          <button
+            type="button"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
+            onClick={login}
+          >Login</button>
+        </form>
+      </div>
     </div>
   )
 }
 
-export default TempLogin
+export default Login
