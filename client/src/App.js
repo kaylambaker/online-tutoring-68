@@ -10,6 +10,7 @@ import TOTPSetup from "./pages/TOTPSetup.js";
 import TOTPVerify from "./pages/TOTPVerify.js";
 import TutorEditProfile from "./pages/tutoredit";
 import StudentEditProfile from "./pages/studentedit";
+import StudentDashboard from "./pages/StudentDashboard";
 import TempLogin from "./pages/tempLogin";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/TOTPVerify" element={<TOTPVerify />} />
           <Route path="/tutoredit" element={<TutorEditProfile />} />
           <Route path="/studentedit" element={<StudentEditProfile />} />
+          <Route path="/studentdashboard" element={<StudentDashboard />} />
           <Route path="/login" element={<TempLogin />} />
         </Routes>
       </BrowserRouter>
