@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-//import profileImage from "../profile.jpg";
+import axios from "../config/axios";
 import "../App.css";
-import axios from "axios";
 
 const StudentEditProfile = () => {
   const [student, setStudent] = useState({
@@ -9,6 +8,23 @@ const StudentEditProfile = () => {
     lastname: "",
     hourscompleted: 0, // Thêm giá trị HoursCompleted mặc định
   });
+  //user session
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8800/tutors")
+      .then((res) => setStudent(res.data))
+      .catch(console.log);
+    axios
+      .get("http://localhost:8800/users/session")
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status == 404) alert("no user logged in");
+        else console.log(err);
+      });
+  }, []);
   //const [selectedFile, setSelectedFile] = useState(null);
   useEffect(() => {
     const fetchStudentData = async () => {
