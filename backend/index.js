@@ -391,7 +391,7 @@ app.get('/users/:Email/:Password', async (req, res) => {
       return res.status(404).send('error, multiple users with same email')
     const user = data[0]
     bcrypt.compare(req.params.Password, user.HashedPassword, (err2, res2) => {
-      if (err2) return res.status(500).send(err)
+      if (err2) return res.status(500).send(err2)
       if (res2) {
         if (user.IsTutor == 0) getNoPassword = getStudent
         else getNoPassword = getTutor
@@ -587,6 +587,7 @@ app.get('/setTOTP/:id/:code', (req, res) => {
     db.query(setSecret, [user.TOTPTempSecret, user.ID], (err2, data2) => {
       // set user secret to tempSecret
       if (err2) return res.status(500).send(err2)
+      req.session.user.TOTPEnabled = true;
       return res.status(200).send(data2)
     })
   })
@@ -602,7 +603,7 @@ app.get('/verifyTOTP/:id/:code', (req, res) => {
     const verified = authenticator.check(req.params.code, user.TOTPSecret)
     if (!verified) return res.status(401).send('invalid code')
     req.session.user.SessionTOTPVerified = true
-    return res.status(200).send(data)
+    return res.status(200).send(user)
   })
 })
 
