@@ -8,11 +8,11 @@ const StudentEditProfile = () => {
     lastname: "",
     hourscompleted: 0, // Thêm giá trị HoursCompleted mặc định
   });
-  //user session
+  //get user login session
   const [user, setUser] = useState(null);
   useEffect(() => {
     axios
-      .get("http://localhost:8800/tutors")
+      .get("http://localhost:8800/students")
       .then((res) => setStudent(res.data))
       .catch(console.log);
     axios
@@ -112,7 +112,7 @@ const StudentEditProfile = () => {
           <button onClick={handleUpload}>upload</button>
         </div>
       </aside>
-      {/* Name input */}
+      {/* Box accept input */}
       <div className="input-container">
         <label htmlFor="firstname">First Name: {student.firstname} </label>
         <input type="text" placeholder="First name" name="firstname" required />
