@@ -15,6 +15,9 @@ import TOTPVerify from './pages/TOTPVerify'
 import TutorEditProfile from "./pages/tutoredit";
 import Login from './pages/Login'
 import Logout from './pages/Logout'
+import AddToFavorites from './pages/AddToFavorites';
+import RemoveFromFavorites from './pages/RemoveFromFavorites';
+import FavoritesList from './pages/FavoritesList';
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
             <Route path="/tutoredit" element={<TutorEditProfile />} />
             <Route path="/login" element={<Login/>} />
             <Route path="/logout" element={<Logout/>} />
+            <Route path="/students/favorites_list/:StudentID" element={<FavoritesList/>}/>
+            <Route path="/students/favorites_list/:StudentID/:TutorID" element={<AddToFavorites/>}/>
+            <Route path="/students/favorites_list/RemoveFromFavorites/:StudentID/:TutorID" element={<RemoveFromFavorites/>}/>
           </Routes>
         </BrowserRouter>
       </div>
