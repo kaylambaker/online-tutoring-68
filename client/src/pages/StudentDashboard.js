@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "../config/axios";
+//import "../styles/StudentDashboard.module.css";
 import "../App.css";
+//import "../StudentDashboard.css";
 
 const StudentDashboard = () => {
   const [student, setStudent] = useState({
@@ -34,7 +36,7 @@ const StudentDashboard = () => {
         setStudent({
           firstname: studentData.FirstName || "",
           lastname: studentData.LastName || "",
-          hourscompleted: studentData.HoursCompleted || 0,
+          //hourscompleted: studentData.HoursCompleted || 0,
           profilepicture: studentData.ProfilePictureID || "",
         });
         console.log("Student Data:", studentData);
@@ -44,19 +46,40 @@ const StudentDashboard = () => {
     };
     fetchStudentData();
   }, []);
+  //get hours completed from end point
+  const [hour, setHoursCompleted] = useState({
+    hourscompleted: "",
+  });
+  useEffect(() => {
+    const fetchHoursCompleted = async () => {
+      try {
+        const res = await axios.get("http://localhost:8800/hoursCompleted/2");
+        console.log(res);
+        const hoursCompleted = res.data;
+        // Set the fetched data into the state
+        setHoursCompleted({
+          hourscompleted: hour.hourscompleted || "",
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchHoursCompleted();
+  }, []);
   return (
-    <div>
+    <div className="dashboard-container">
       <h1>Student Dashboard</h1>
-      <div className="profile-container">
+      <div className="profile-container-dashboard">
         <img
           src={`http://localhost:8800/` + student.profilepicture}
           alt="Profile"
-          width="50"
-          height="50"
+          width="500"
+          height="500"
+          className="profile-image"
         />
       </div>
       <div>
-        <p>Hours Completed: {student.hourscompleted}</p>
+        <p>Hours Completed: {hour.hourscompleted}</p>
       </div>
       <div>
         <Link to="/calendar">View Calendar</Link>

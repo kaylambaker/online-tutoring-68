@@ -1,5 +1,6 @@
 import "./App.css";
-import "./pages/Style.css";
+//import "./StudentDashboard.css";
+//import "./pages/Style.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Home";
 import SignupPage from "./pages/Signup";

@@ -102,6 +102,31 @@ label[for="availability"] {
   opacity: 0.8;
 }
 
+/*student dashboard*/
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100vh; /* Set the height to 100% of the viewport height */
+}
+
+/*home page*/
+/* App.css */
+
+.home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Set the height to 100% of the viewport height */
+}
+
+.home h1 {
+  text-align: center; /* Center the text horizontally */
+}
+
 
 /*end of Long Nguyen task*/
 
