@@ -338,7 +338,7 @@ returns
 + on success, status code 200 and the list of appointments
 + on failure, status code 200 and the error message
 
-### delete /appointments/:id - delete appointment identified by id
+### delete /appointments/:id - delete appointment identified by id if it is more than 24 hours away
 
 request parameters
  
@@ -350,8 +350,10 @@ body parameters
  
 returns
  
-+ on success, status 200 and success: true
-+ on failure, status code 500 and error: 'Error deleting appointment' 
++ on success, status 200 and sql message associated with deleting the appointment
++ on failure
+    + if the appointment is within 24 hour, status code 403 and message 'cannot delete appointments that are within 24 hours or that are in the past'
+    + if other error, status code 500 and err message
 
 ### get /appointments/:id - get appointment identified by id
 

@@ -193,17 +193,23 @@ app.get('/Appointments', (req, res) => {
 
 // Endpoint to delete an appointment by appointment Id
 app.delete('/appointments/:id', (req, res) => {
-  const appointmentId = req.params.id
-
-  const q = 'DELETE FROM Appointments WHERE ID = ?'
-
-  db.query(q, [appointmentId], (err, data) => {
-    if (err) {
-      console.error('Error deleting appointment:', err)
-      return res.status(500).json({ error: 'Error deleting appointment' })
-    }
-    console.log('Appointment deleted successfully')
-    return res.json({ success: true })
+  // check that the appointment time is at least 24 hours out
+  const checkTime =
+    'select * from Appointments where timestamp(AppointmentDate,StartTime)>now()+interval 1 day and ID=?;'
+  // delete the appointment
+  const deleteAppointment = 'DELETE FROM Appointments WHERE ID = ?'
+  db.query(checkTime, req.params.id, (err, data) => {
+    if (err) return res.status(500).send(err)
+    if (data.length == 0)
+      return res
+        .status(403)
+        .send(
+          'cannot delete appointments that are within 24 hours or that are in the past',
+        )
+    db.query(deleteAppointment, req.params.id, (err, data) => {
+      if (err) return res.status(500).send(err)
+      return res.status(200).send(data)
+    })
   })
 })
 
@@ -313,18 +319,9 @@ app.post('/createAppointment', (req, res) => {
 
   const insertQuery = `INSERT INTO Appointments 
     (StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const values = [
-    studentID,
-    tutorID,
-    appointmentDate,
-    startTime,
-    endTime,
-    defaultSubject,
-    defaultNotes,
-    defaultMeetingLink,
-  ]
+  const values = [studentID, tutorID, appointmentDate, startTime, endTime, defaultSubject, defaultNotes, defaultMeetingLink];
 
   db.query(insertQuery, values, (err, result) => {
     if (err) {
