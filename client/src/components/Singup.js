@@ -3,7 +3,7 @@ import FormInput from './FormInput'
 import FormSelect from './FormSelect'
 import FormGroupCheckbox from './FormGroupCheckbox'
 import FormTextArea from './FormTextArea'
-import axios from 'axios'
+import axios from '../config/axios'
 import { useNavigate } from 'react-router-dom'
 
 let navigate
@@ -79,8 +79,13 @@ function submitForm(event) {
         }
         axios.post(`http://localhost:8800/${apiEndpoint}`, data)
         .then((response)=>{
-            navigate('/TOTPSetup')
-            // alert('Account created successfully!')
+            alert('Account created successfully!')
+            axios.get('/users/'+data.Email+'/'+data.Password)
+            .then((_)=>navigate('/TOTPSetup'))
+            .catch((err)=>{
+              alert("something went wrong")
+              console.log(err)
+            })
         }).catch((error)=>{
             alert(error.response.data.sqlMessage || error.response.data.message || error)
         });

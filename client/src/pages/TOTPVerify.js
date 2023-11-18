@@ -28,7 +28,7 @@ const TOTPVerify = () => {
     axios
       .get("/verifyTOTP/" + user.ID + "/" + code)
       .then((res) => {
-        alert('TOTP verified :)')
+        // alert('TOTP verified :)')
         res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
       })
       .catch((err) => {

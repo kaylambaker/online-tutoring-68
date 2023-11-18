@@ -12,6 +12,7 @@ const TOTPSetup = () => {
     axios
       .get('/users/session')
       .then((res) => {
+        console.log(res.data)
         setUser(res.data)
         if (!res.data.SessionTOTPVerified && res.data.TOTPEnabled == 1)
           navigate('/TOTPVerify')

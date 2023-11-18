@@ -72,26 +72,40 @@ const transporter = nodemailer.createTransport({
 })
 
 const sendReminder = async (apptID) => {
-  const q =
-    'select Appointments.ID, u1.FirstName, u1.LastName, AppointmentDate, StartTime,EndTime,u2.Email from Appointments join Users as u1 on TutorID=u1.ID join Users as u2 on StudentID=u2.ID where Appointments.ID=?;'
+  const q ='select Appointments.ID, tutor.FirstName as TutorFirstName, tutor.LastName as TutorLastName, student.FirstName as StudentFirstName, student.LastName as StudentLastName, AppointmentDate, StartTime,EndTime,student.Email as StudentEmail,tutor.email as TutorEmail from Appointments join Users as tutor on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointments.ID=?;'
   db.promise()
     .query(q, apptID)
     .then(([tuples, _]) => {
       const appt = tuples[0]
-      const html = ` 
+      const emailToStudent = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with ${appt.FirstName} ${appt.LastName} 
+        <p>You have an appointment with tutor ${appt.TutorFirstName} ${appt.TutorLastName} 
+        on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
+        from ${appt.StartTime} to ${appt.EndTime}</p>
+      `
+      const emailToTutor = ` 
+        <h1>Tutoring Appointment Reminder</h1>
+        <p>You have an appointment with student ${appt.StudentFirstName} ${appt.StudentLastName} 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${appt.StartTime} to ${appt.EndTime}</p>
       `
       transporter
         .sendMail({
           from: 'online tutoring <online.tutoring.68@gmail.com>',
-          to: appt.Email,
+          to: appt.StudentEmail,
           subject: 'Tutoring Appointment Reminder',
-          html: html,
+          html: emailToStudent,
         })
-        .then((info) => {})
+        .then((info) => { })
+        .catch(console.log)
+      transporter
+        .sendMail({
+          from: 'online tutoring <online.tutoring.68@gmail.com>',
+          to: appt.TutorEmail,
+          subject: 'Tutoring Appointment Reminder',
+          html: emailToTutor,
+        })
+        .then((info) => { })
         .catch(console.log)
     })
     .catch(console.log)
