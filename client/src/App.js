@@ -1,5 +1,5 @@
 import './App.css';
-import "./Style.css";
+
 import {
   BrowserRouter,
   Routes,
@@ -15,6 +15,8 @@ import TOTPVerify from './pages/TOTPVerify'
 import TutorEditProfile from "./pages/tutoredit";
 import Login from './pages/Login'
 import Logout from './pages/Logout'
+import FavoritesList from './pages/FavoritesList';
+import AddToFavorites from './pages/AddToFavorites';
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
             <Route path="/tutoredit" element={<TutorEditProfile />} />
             <Route path="/login" element={<Login/>} />
             <Route path="/logout" element={<Logout/>} />
+            <Route path="/students/favorites_list/:StudentID" element={<FavoritesList/>}/>
+            <Route path="/students/favorites_list/:StudentID/:TutorID" element={<AddToFavorites/>}/>
           </Routes>
         </BrowserRouter>
       </div>
@@ -38,4 +42,5 @@ function App() {
 }
 
 export default App;
+
 
