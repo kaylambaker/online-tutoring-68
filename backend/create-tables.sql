@@ -1,6 +1,6 @@
 create table if not exists Users (
   ID int primary key auto_increment,
-  Email varchar(255) not null unique,
+  Email varbinary(256) not null unique,
   FirstName varchar(255) not null,
   LastName varchar(255) not null,
   HashedPassword varchar(200) not null,
@@ -46,5 +46,5 @@ create table if not exists Appointments (
 create table if not exists Criminals (
   FirstName varchar(255) not null,
   LastName varchar(255) not null,
-  Email varchar(255) not null unique
+  Email varbinary(256) not null unique
 );

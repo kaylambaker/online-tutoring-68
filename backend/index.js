@@ -72,9 +72,15 @@ const transporter = nodemailer.createTransport({
 })
 
 const sendReminder = async (apptID) => {
-  const q ='select Appointments.ID, tutor.FirstName as TutorFirstName, tutor.LastName as TutorLastName, student.FirstName as StudentFirstName, student.LastName as StudentLastName, AppointmentDate, StartTime,EndTime,student.Email as StudentEmail,tutor.email as TutorEmail from Appointments join Users as tutor on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointments.ID=?;'
+  const q = `
+  select Appointments.ID, tutor.FirstName as TutorFirstName, tutor.LastName as TutorLastName, 
+  student.FirstName as StudentFirstName, student.LastName as StudentLastName, AppointmentDate, 
+StartTime,EndTime,cast(aes_decrypt(student.Email,?) as char)  as StudentEmail,
+cast(aes_decrypt(tutor.email,?) as char) as TutorEmail from Appointments join Users as tutor 
+on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointments.ID=?;
+`
   db.promise()
-    .query(q, apptID)
+    .query(q, [process.env.AES_KEY,process.env.AES_KEY,apptID])
     .then(([tuples, _]) => {
       const appt = tuples[0]
       const emailToStudent = ` 
@@ -353,7 +359,7 @@ app.post('/createAppointment', (req, res) => {
 // async is needed to allow await for bcrypt to hash.
 app.post("/tutors", async (req, res) => {
   const createUserQuery =
-    "insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);";
+    "insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (aes_encrypt(?,?),?,?,?,?,?,?);";
   const createTutorQuery =
     "insert into Tutors (ID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd) values (?);";
   const passwordRegex =
@@ -367,6 +373,7 @@ app.post("/tutors", async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.Password, 10);
   const createUserValues = [
     req.body.Email,
+    process.env.AES_KEY,
     req.body.FirstName,
     req.body.LastName,
     hashedPassword,
@@ -374,7 +381,7 @@ app.post("/tutors", async (req, res) => {
     req.body.ProfilePictureID,
     req.body.IsTutor,
   ];
-  db.query(createUserQuery, [createUserValues], (err, data) => {
+  db.query(createUserQuery, createUserValues, (err, data) => {
     if (err) return res.status(400).send(err);
     const createTutorValues = [
       data.insertId,
@@ -398,7 +405,7 @@ app.post("/tutors", async (req, res) => {
 // async is needed to allow await for bcrypt to hash.
 app.post("/students", async (req, res) => {
   const createUserQuery =
-    "insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);";
+    "insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (aes_encrypt(?,?),?,?,?,?,?,?);";
   const createStudentQuery = "insert into Students (ID) values (?);";
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
@@ -411,6 +418,7 @@ app.post("/students", async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.Password, 10);
   const createUserValues = [
     req.body.Email,
+    process.env.AES_KEY,
     req.body.FirstName,
     req.body.LastName,
     hashedPassword,
@@ -418,7 +426,7 @@ app.post("/students", async (req, res) => {
     req.body.ProfilePictureID,
     req.body.IsTutor,
   ];
-  db.query(createUserQuery, [createUserValues], (err, data) => {
+  db.query(createUserQuery, createUserValues, (err, data) => {
     if (err) return res.status(400).send(err);
     const createStudentValues = [data.insertId];
     db.query(createStudentQuery, [createStudentValues], (err, data2) => {
@@ -449,14 +457,13 @@ app.delete("/users/session", (req, res) => {
 // returns: all Users attributes from database
 //          returns 1 user
 app.get("/users/:Email/:Password", async (req, res) => {
-  const getUser = "select * from Users where Email=?";
+  const getUser = "select * from Users where Email=aes_encrypt(?,?);";
   const getTutor =
-    "select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Tutors where Email=?";
+    "select ID,cast(aes_decrypt(Email,?) as char) as Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Tutors where Email=aes_encrypt(?,?)";
   const getStudent =
-    "select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=?";
-  const values = [req.params.Email];
+    "select ID,cast(aes_decrypt(Email,?) as char) as Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=aes_encrypt(?,?)";
   let getNoPassword = "";
-  db.query(getUser, values, (err, data) => {
+  db.query(getUser, [req.params.Email,process.env.AES_KEY], (err, data) => {
     if (err) return res.status(500).send(err);
     // if no tuples in result
     if (data.length == 0) return res.status(404).send("user not found");
@@ -468,7 +475,7 @@ app.get("/users/:Email/:Password", async (req, res) => {
       if (res2) {
         if (user.IsTutor == 0) getNoPassword = getStudent;
         else getNoPassword = getTutor;
-        db.query(getNoPassword, [req.params.Email], (err, data) => {
+        db.query(getNoPassword, [process.env.AES_KEY, req.params.Email,process.env.AES_KEY], (err, data) => {
           if (err) return res.status(500).send(err);
           req.session.user = { ...data[0], SessionTOTPVerified: false };
           return res.status(200).send(req.session.user);
@@ -608,7 +615,6 @@ app.get("/tutors", (req, res) => {
       Users.ID, \
       Users.FirstName, \
       Users.LastName,\
-      Users.Email, \
       Users.HoursCompleted, \
       Tutors.Bio, \
       Tutors.Subject, \
