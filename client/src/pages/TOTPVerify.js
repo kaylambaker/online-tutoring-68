@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
 import FormInput from '../components/FormInput'
+import "../App.css";
 
 const TOTPVerify = () => {
-  const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-  const [code, setCode] = useState('')
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [code, setCode] = useState("");
   useEffect(() => {
     axios
-      .get('/users/session')
+      .get("/users/session")
       .then((res) => {
         if (res.data.TOTPEnabled == 0) navigate('/TOTPSetup')
         else if (res.data.SessionTOTPVerified) {
@@ -19,25 +20,25 @@ const TOTPVerify = () => {
       })
       .catch((err) => {
         // if no session user, go to login
-        if (err.response.status == 404) navigate('/login')
-        else console.log(err)
-      })
-  }, [])
+        if (err.response.status == 404) navigate("/login");
+        else console.log(err);
+      });
+  }, []);
   const validateCode = () => {
     axios
-      .get('/verifyTOTP/' + user.ID + '/' + code)
+      .get("/verifyTOTP/" + user.ID + "/" + code)
       .then((res) => {
         alert('TOTP verified :)')
         res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
       })
       .catch((err) => {
         if (err.response.status == 404) {
-          alert('error: invalid user ID')
-          console.log(err)
-        } else if (err.response.status == 401) alert('incorrect TOTP code')
-        else console.log(err)
-      })
-  }
+          alert("error: invalid user ID");
+          console.log(err);
+        } else if (err.response.status == 401) alert("incorrect TOTP code");
+        else console.log(err);
+      });
+  };
   return (
     <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <div className="flex flex-col pb-10 place-items-center">
@@ -62,7 +63,7 @@ const TOTPVerify = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TOTPVerify
+export default TOTPVerify;

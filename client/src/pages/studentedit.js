@@ -1,24 +1,43 @@
 import React, { useState, useEffect } from "react";
-import profileImage from "../profile.jpg";
+import axios from "../config/axios";
 import "../App.css";
-import axios from "axios";
 
 const StudentEditProfile = () => {
   const [student, setStudent] = useState({
-    name: "",
+    firstname: "",
+    lastname: "",
+    hourscompleted: 0, // Thêm giá trị HoursCompleted mặc định
   });
-  const [selectedFile, setSelectedFile] = useState(null);
+  //get user login session
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8800/students")
+      .then((res) => setStudent(res.data))
+      .catch(console.log);
+    axios
+      .get("http://localhost:8800/users/session")
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status == 404) alert("no user logged in");
+        else console.log(err);
+      });
+  }, []);
+  //const [selectedFile, setSelectedFile] = useState(null);
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
         const res = await axios.get("http://localhost:8800/students/2");
-        console.log(res);
+        //console.log(res);
         const studentData = res.data;
         // Set the fetched data into the state
         setStudent({
           firstname: studentData.FirstName || "",
           lastname: studentData.LastName || "",
           profilepicture: studentData.ProfilePictureID || "",
+          hourscompleted: studentData.HoursCompleted || 0,
         });
         console.log("Student Data:", studentData);
       } catch (err) {
@@ -33,11 +52,12 @@ const StudentEditProfile = () => {
       const updatedData = {
         FirstName: student.firstname,
         LastName: student.lastname,
+        HoursCompleted: student.hourscompleted,
       };
 
       // Send a PUT request to update the tutor's data in the database
       const response = await axios.put(
-        "http://localhost:8800/users/2",
+        "http://localhost:8800/students/2",
         updatedData
       );
       console.log(updatedData);
@@ -92,15 +112,24 @@ const StudentEditProfile = () => {
           <button onClick={handleUpload}>upload</button>
         </div>
       </aside>
-      {/* Name input */}
+      {/* Box accept input */}
       <div className="input-container">
         <label htmlFor="firstname">First Name: {student.firstname} </label>
-
         <input type="text" placeholder="First name" name="firstname" required />
         <label htmlFor="lastname">Last Name: {student.lastname} </label>
         <input type="text" placeholder="Last name" name="lastname" required />
+        <label htmlFor="hourscompleted">
+          Hours Completed: {student.hourscompleted}{" "}
+        </label>
+        <input
+          type="text"
+          placeholder="Hours completed"
+          name="hourscompleted"
+          required
+        />
       </div>
       <button onClick={handleSaveChanges}>Save Changes</button>
     </div>
   );
+};
 export default StudentEditProfile;

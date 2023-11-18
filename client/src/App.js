@@ -17,6 +17,7 @@ import Login from './pages/Login'
 import Logout from './pages/Logout'
 import FavoritesList from './pages/FavoritesList';
 import AddToFavorites from './pages/AddToFavorites';
+import StudentDashboard from './pages/StudentDashboard'
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/logout" element={<Logout/>} />
             <Route path="/students/favorites_list/:StudentID" element={<FavoritesList/>}/>
             <Route path="/students/favorites_list/:StudentID/:TutorID" element={<AddToFavorites/>}/>
+          <Route path="/studentdashboard" element={<StudentDashboard />} />
           </Routes>
         </BrowserRouter>
       </div>
@@ -42,5 +44,3 @@ function App() {
 }
 
 export default App;
-
-
