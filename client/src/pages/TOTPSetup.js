@@ -11,6 +11,7 @@ const TOTPSetup = () => {
     axios
       .get('/users/session')
       .then((res) => {
+        console.log(res.data)
         setUser(res.data)
         if (!res.data.SessionTOTPVerified && res.data.TOTPEnabled == 1)
           navigate('/TOTPVerify')
@@ -38,7 +39,7 @@ const TOTPSetup = () => {
       .get('/setTOTP/' + user.ID + '/' + code)
       .then((res) => {
         alert('2FA enabled :)')
-        navigate('/TOTPVerify');
+        navigate('/TOTPVerify')
       })
       .catch((err) => {
         alert('Unable to setup 2FA. Make sure TOTP code was inputed correctly')
@@ -54,20 +55,22 @@ const TOTPSetup = () => {
       <img src={image} />
       <div>
         <form id="login-form">
-          <FormInput 
-              id='totp-code'
-              name='totp-code'
-              labelText='TOTP Code'
-              type='text'
-              isRequired={true}
-              placeholder='enter TOTP code'
-              onChange={(e) => setCode(e.target.value)}
+          <FormInput
+            id="totp-code"
+            name="totp-code"
+            labelText="TOTP Code"
+            type="text"
+            isRequired={true}
+            placeholder="enter TOTP code"
+            onChange={(e) => setCode(e.target.value)}
           />
           <button
             type="button"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={validateCode}
-          >Validate Code</button>
+          >
+            Validate Code
+          </button>
         </form>
       </div>
     </div>
