@@ -74,7 +74,7 @@ body parameters
 returns
  
 + on success, status code 200 and sql message for inserting into tutors table
-+ on failure, status code 400 and error message
++ on failure, status code 500 and error message
 
 ### get /tutors/:id - retrieves a tutor identified by id
 
@@ -338,7 +338,7 @@ returns
 + on success, status code 200 and the list of appointments
 + on failure, status code 200 and the error message
 
-### delete /appointments/:id - delete appointment identified by id
+### delete /appointments/:id - delete appointment identified by id if it is more than 24 hours away
 
 request parameters
  
@@ -350,8 +350,10 @@ body parameters
  
 returns
  
-+ on success, status 200 and success: true
-+ on failure, status code 500 and error: 'Error deleting appointment' 
++ on success, status 200 and sql message associated with deleting the appointment
++ on failure
+    + if the appointment is within 24 hour, status code 403 and message 'cannot delete appointments that are within 24 hours or that are in the past'
+    + if other error, status code 500 and err message
 
 ### get /appointments/:id - get appointment identified by id
 
@@ -428,6 +430,29 @@ returns
 + on success, status 200 and success: true
 + on failure, status code 500 and error: 'Error deleting appointment' 
 
+### post /appointments - insert appointment into database
+
+request parameters
+
+* none
+
+body parameters
+
+* StudentID
+* TutorID
+* AppointmentDate formatted as m-d-yyyy or mm-dd-yyyy
+* StartTime as hh:mm:ss
+* EndTime as hh:mm:ss
+* Subject
+* AppointmentNotes
+
+returns
+
+* on success, status code 200 and sql message for inserting the appointment into the database
+* on failure, status code 500 and error message
+
+## TOTP endpoints
+
 ### get /TOTPQRCode:/id - generate a TOTP QR code for the user identified by id
 
 request parameters
@@ -480,6 +505,8 @@ returns
     + if the TOTP code is invalid, status code 401 and message 'invalid code'
     + if the user ID is invalid, status code 404 and message 'invalid user ID'
     + other errors, status code 500 and error message
+
+## /hoursCompleted
 
 ### get /hoursCompleted/:id - get the hours completed by the user identified by id
 

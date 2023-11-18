@@ -1,18 +1,19 @@
-import express from "express";
-import mysql from "mysql2";
-import cors from "cors";
-import bcrypt from "bcrypt";
-import multer from "multer";
-import path from "path";
-import dotenv from "dotenv";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import { authenticator } from "otplib";
-import qrcode from "qrcode";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
-import session from "express-session";
+import express from 'express'
+import mysql from 'mysql2'
+import cors from 'cors'
+import bcrypt from 'bcrypt'
+import multer from 'multer'
+import path from 'path'
+import dotenv from 'dotenv'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+import { authenticator } from 'otplib'
+import qrcode from 'qrcode'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import session from 'express-session'
+import nodemailer from 'nodemailer'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,6 +62,64 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE || "online_tutoring",
 });
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'online.tutoring.68@gmail.com',
+    pass: process.env.EMAIL_APP_PASS,
+  },
+})
+
+const sendReminder = async (apptID) => {
+  const q =
+    'select Appointments.ID, u1.FirstName, u1.LastName, AppointmentDate, StartTime,EndTime,u2.Email from Appointments join Users as u1 on TutorID=u1.ID join Users as u2 on StudentID=u2.ID where Appointments.ID=?;'
+  db.promise()
+    .query(q, apptID)
+    .then(([tuples, _]) => {
+      const appt = tuples[0]
+      const html = ` 
+        <h1>Tutoring Appointment Reminder</h1>
+        <p>You have an appointment with ${appt.FirstName} ${appt.LastName} 
+        on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
+        from ${appt.StartTime} to ${appt.EndTime}</p>
+      `
+      transporter
+        .sendMail({
+          from: 'online tutoring <online.tutoring.68@gmail.com>',
+          to: appt.Email,
+          subject: 'Tutoring Appointment Reminder',
+          html: html,
+        })
+        .then((info) => {})
+        .catch(console.log)
+    })
+    .catch(console.log)
+}
+
+app.post('/appointments', async (req, res) => {
+  const q =
+    "insert into Appointments (StudentID,TutorID,AppointmentDate,StartTime,EndTime,Subject,AppointmentNotes,MeetingLink) values (?,?,str_to_date(?,'%m-%d-%Y'),str_to_date(?,'%T'),str_to_date(?,'%T'),?,?,null);"
+  const values = [
+    req.body.StudentID,
+    req.body.TutorID,
+    req.body.AppointmentDate,
+    req.body.StartTime,
+    req.body.EndTime,
+    req.body.Subject,
+    req.body.AppointmentNotes,
+  ]
+  await db
+    .promise()
+    .query(q, values)
+    .then(([tuples, fields]) => {
+      sendReminder(tuples.insertId)
+      return res.status(200).send(tuples)
+    })
+    .catch((err) => {
+      return res.status(500).send(err)
+    })
+})
 
 // modify tutor, everything but ID, Email, and IsTutor
 // query parameters: ID
@@ -133,20 +192,26 @@ app.get("/Appointments", (req, res) => {
 });
 
 // Endpoint to delete an appointment by appointment Id
-app.delete("/appointments/:id", (req, res) => {
-  const appointmentId = req.params.id;
-
-  const q = "DELETE FROM Appointments WHERE ID = ?";
-
-  db.query(q, [appointmentId], (err, data) => {
-    if (err) {
-      console.error("Error deleting appointment:", err);
-      return res.status(500).json({ error: "Error deleting appointment" });
-    }
-    console.log("Appointment deleted successfully");
-    return res.json({ success: true });
-  });
-});
+app.delete('/appointments/:id', (req, res) => {
+  // check that the appointment time is at least 24 hours out
+  const checkTime =
+    'select * from Appointments where timestamp(AppointmentDate,StartTime)>now()+interval 1 day and ID=?;'
+  // delete the appointment
+  const deleteAppointment = 'DELETE FROM Appointments WHERE ID = ?'
+  db.query(checkTime, req.params.id, (err, data) => {
+    if (err) return res.status(500).send(err)
+    if (data.length == 0)
+      return res
+        .status(403)
+        .send(
+          'cannot delete appointments that are within 24 hours or that are in the past',
+        )
+    db.query(deleteAppointment, req.params.id, (err, data) => {
+      if (err) return res.status(500).send(err)
+      return res.status(200).send(data)
+    })
+  })
+})
 
 // Endpoint to get an appointment by appointment Id
 app.get("/appointments/:id", (req, res) => {
@@ -244,38 +309,29 @@ app.delete("/appointments/student/:id", (req, res) => {
   });
 });
 
-app.post("/createAppointment", (req, res) => {
-  const { studentID, tutorID, appointmentDate, startTime, endTime } = req.body;
+app.post('/createAppointment', (req, res) => {
+  const { studentID, tutorID, appointmentDate, startTime, endTime } = req.body
 
   // Define default values for optional fields
-  const defaultSubject = "Default Subject";
-  const defaultNotes = "Default Notes";
-  const defaultMeetingLink = null;
+  const defaultSubject = 'Default Subject'
+  const defaultNotes = 'Default Notes'
+  const defaultMeetingLink = null
 
   const insertQuery = `INSERT INTO Appointments 
     (StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const values = [
-    studentID,
-    tutorID,
-    appointmentDate,
-    startTime,
-    endTime,
-    defaultSubject,
-    defaultNotes,
-    defaultMeetingLink,
-  ];
+  const values = [studentID, tutorID, appointmentDate, startTime, endTime, defaultSubject, defaultNotes, defaultMeetingLink];
 
   db.query(insertQuery, values, (err, result) => {
     if (err) {
-      console.error("Error creating appointment:", err);
-      return res.status(400).json({ error: "Error creating appointment" });
+      console.error('Error creating appointment:', err)
+      return res.status(400).json({ error: 'Error creating appointment' })
     }
     //console.log('Appointment created successfully');
-    return res.status(201).json({ success: true });
-  });
-});
+    return res.status(201).json({ success: true })
+  })
+})
 
 // create new tutor
 // query parameters: none
@@ -394,7 +450,7 @@ app.get("/users/:Email/:Password", async (req, res) => {
       return res.status(404).send("error, multiple users with same email");
     const user = data[0];
     bcrypt.compare(req.params.Password, user.HashedPassword, (err2, res2) => {
-      if (err2) return res.status(500).send(err);
+      if (err2) return res.status(500).send(err2)
       if (res2) {
         if (user.IsTutor == 0) getNoPassword = getStudent;
         else getNoPassword = getTutor;
@@ -590,25 +646,26 @@ app.get("/setTOTP/:id/:code", (req, res) => {
     if (!verified) return res.status(401).send("invalid code");
     db.query(setSecret, [user.TOTPTempSecret, user.ID], (err2, data2) => {
       // set user secret to tempSecret
-      if (err2) return res.status(500).send(err2);
-      return res.status(200).send(data2);
-    });
-  });
-});
+      if (err2) return res.status(500).send(err2)
+      req.session.user.TOTPEnabled = true
+      return res.status(200).send(data2)
+    })
+  })
+})
 
 // verify login with 2fa
 app.get("/verifyTOTP/:id/:code", (req, res) => {
   const getUser = "select * from Users where ID=?;";
   db.query(getUser, req.params.id, (err, data) => {
-    if (err) return res.status(500).send(err);
-    if (data.length === 0) return res.status(404).send("invalid user ID");
-    const user = data[0];
-    const verified = authenticator.check(req.params.code, user.TOTPSecret);
-    if (!verified) return res.status(401).send("invalid code");
-    req.session.user.SessionTOTPVerified = true;
-    return res.status(200).send(data);
-  });
-});
+    if (err) return res.status(500).send(err)
+    if (data.length === 0) return res.status(404).send('invalid user ID')
+    const user = data[0]
+    const verified = authenticator.check(req.params.code, user.TOTPSecret)
+    if (!verified) return res.status(401).send('invalid code')
+    req.session.user.SessionTOTPVerified = true
+    return res.status(200).send(user)
+  })
+})
 
 // calculate hours completed using the number of past appointments
 app.get("/hoursCompleted/:id", (req, res) => {
