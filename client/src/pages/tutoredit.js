@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import axios from "axios";
+import axios from "../config/axios";
 
 const TutorEditProfile = () => {
   const [tutor, setTutor] = useState({
@@ -9,6 +9,23 @@ const TutorEditProfile = () => {
     subject: "",
   });
   //const [selectedFile, setSelectedFile] = useState(null);
+  const [user, setUser] = useState(null);
+  //get user login session
+  useEffect(() => {
+    axios
+      .get("http://localhost:8800/tutors")
+      .then((res) => setTutor(res.data))
+      .catch(console.log);
+    axios
+      .get("http://localhost:8800/users/session")
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status == 404) alert("no user logged in");
+        else console.log(err);
+      });
+  }, []);
 
   //fetch tutor infor from database
   useEffect(() => {

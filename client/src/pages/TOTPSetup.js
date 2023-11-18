@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Form, InputGroup, Button } from 'react-bootstrap'
 import axios from '../config/axios'
 import FormInput from '../components/FormInput'
+import "../App.css";
 
 const TOTPSetup = () => {
   const [user, setUser] = useState(null)
