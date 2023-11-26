@@ -57,10 +57,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE || "online_tutoring",
+  host: 3306,
+  user: 'root',
+  password: 'csproject',
+  database: 'calendar_db',
 });
 
 const transporter = nodemailer.createTransport({
