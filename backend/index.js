@@ -362,14 +362,15 @@ app.post("/tutors", async (req, res) => {
     "insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (aes_encrypt(?,?),?,?,?,?,?,?);";
   const createTutorQuery =
     "insert into Tutors (ID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd) values (?);";
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
-  if (!passwordRegex.test(req.body.Password)) {
-    return res.status(403).send({
-      message:
-        "Password must be at least 8 characters,one capital letter,one special character,and at least one digit",
-    });
-  }
+  const tutorInfoQuery = 
+    "select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Tutors where Email=?";
+  
+  let result = await checkCriminalBackground(req.body.FirstName, req.body.LastName, req.body.Email);
+  if(result) return res.status(403).send({ message: result });
+
+  result = checkPasswordStrength(req.body.Password);
+  if (result) return res.status(403).send({ message: result });
+
   const hashedPassword = await bcrypt.hash(req.body.Password, 10);
   const createUserValues = [
     req.body.Email,
@@ -392,7 +393,11 @@ app.post("/tutors", async (req, res) => {
     ];
     db.query(createTutorQuery, [createTutorValues], (err, data2) => {
       if (err) return res.status(400).send(err);
-      return res.status(200).send(data2);
+      db.query(tutorInfoQuery, [req.body.Email], (err, data3) => {
+        if (err) return res.status(500).send(err);
+        req.session.user = { ...data3[0], SessionTOTPVerified: false };
+        return res.status(200).send(data3);
+      });
     });
   });
 });
@@ -407,14 +412,15 @@ app.post("/students", async (req, res) => {
   const createUserQuery =
     "insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (aes_encrypt(?,?),?,?,?,?,?,?);";
   const createStudentQuery = "insert into Students (ID) values (?);";
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
-  if (!passwordRegex.test(req.body.Password)) {
-    return res.status(403).send({
-      message:
-        "Password must be at least 8 characters,one capital letter,one special character,and at least one digit",
-    });
-  }
+  const studentInfoQuery =
+    "select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=?";
+  
+  let result = await checkCriminalBackground(req.body.FirstName, req.body.LastName, req.body.Email);
+  if(result) return res.status(403).send({ message: result });
+
+  result = checkPasswordStrength(req.body.Password);
+  if (result) return res.status(403).send({ message: result });
+
   const hashedPassword = await bcrypt.hash(req.body.Password, 10);
   const createUserValues = [
     req.body.Email,
@@ -431,7 +437,11 @@ app.post("/students", async (req, res) => {
     const createStudentValues = [data.insertId];
     db.query(createStudentQuery, [createStudentValues], (err, data2) => {
       if (err) return res.status(400).send(err);
-      res.status(201).send(data2);
+      db.query(studentInfoQuery, [req.body.Email], (err, data3) => {
+        if (err) return res.status(500).send(err);
+        req.session.user = { ...data3[0], SessionTOTPVerified: false };
+        return res.status(200).send(data3);
+      });
     });
   });
 });
@@ -711,3 +721,24 @@ app.get("/hoursCompleted/:id", (req, res) => {
 app.listen(8800, () => {
   console.log("connected to backend!");
 });
+
+function checkPasswordStrength(password) {
+  const passwordRegex =
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+  if (passwordRegex.test(password)) {
+    return false;
+  } else {
+    return "Password must be at least 8 characters,one capital letter,one special character,and at least one digit";
+  }
+}
+
+async function checkCriminalBackground (first_name, last_name, email){
+  const checkquery= "select * from Criminals where FirstName = ? and LastName = ? and Email=aes_encrypt(?,?)";
+  const promisDb = db.promise();
+  const [rows,fields] = await promisDb.query(checkquery, [first_name, last_name, email, process.env.AES_KEY]);
+  if(rows.length==0){
+    return false;
+  } else {
+    return "Criminal Background check failed";
+  }
+}
