@@ -2,6 +2,18 @@ import React, { useState, useEffect } from "react";
 import axios from "../config/axios";
 import "../App.css";
 
+// react-bootstrap components
+import {
+  Badge,
+  Button,
+  Card,
+  Form,
+  Navbar,
+  Nav,
+  Container,
+  Row,
+  Col,
+} from "react-bootstrap";
 const StudentEditProfile = () => {
   const [student, setStudent] = useState({
     firstname: "",
@@ -100,7 +112,7 @@ const StudentEditProfile = () => {
             {student.firstname} {student.lastname}
           </h1>
         </div>
-        <div className="profile-container">
+        <div>
           <img
             src={`http://localhost:8800/` + student.profilepicture}
             alt="Profile"
@@ -121,12 +133,6 @@ const StudentEditProfile = () => {
         <label htmlFor="hourscompleted">
           Hours Completed: {student.hourscompleted}{" "}
         </label>
-        <input
-          type="text"
-          placeholder="Hours completed"
-          name="hourscompleted"
-          required
-        />
       </div>
       <button onClick={handleSaveChanges}>Save Changes</button>
     </div>

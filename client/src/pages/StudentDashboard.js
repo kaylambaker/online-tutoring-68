@@ -73,8 +73,8 @@ const StudentDashboard = () => {
         <img
           src={`http://localhost:8800/` + student.profilepicture}
           alt="Profile"
-          width="500"
-          height="500"
+          width="200"
+          height="200"
           className="profile-image"
         />
       </div>

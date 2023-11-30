@@ -7,6 +7,7 @@ const TutorEditProfile = () => {
     bio: "",
     email: "",
     subject: "",
+    hourscompleted: 0, // Thêm giá trị HoursCompleted mặc định
   });
   //const [selectedFile, setSelectedFile] = useState(null);
   const [user, setUser] = useState(null);
@@ -44,6 +45,7 @@ const TutorEditProfile = () => {
           hourstart: tutorData.AvailableHoursStart || "",
           hourend: tutorData.AvailableHoursEnd || "",
           profilepicture: tutorData.ProfilePictureID || "",
+          hourscompleted: tutorData.HoursCompleted || 0,
         });
       } catch (err) {
         console.log(err);
@@ -63,6 +65,7 @@ const TutorEditProfile = () => {
         LastName: tutor.lastname,
         AvailableHoursStart: tutor.hourstart,
         AvailableHoursEnd: tutor.hourend,
+        HoursCompleted: tutor.hourscompleted,
       };
 
       const response = await axios.put(
@@ -74,7 +77,7 @@ const TutorEditProfile = () => {
       console.log("Data updated successfully:", response.data);
 
       // Trigger a page refresh to load the updated data
-      window.location.reload();
+      //window.location.reload();
     } catch (error) {
       // Handle any errors, e.g., show an error message
       console.error("Error updating data:", error);
@@ -118,17 +121,17 @@ const TutorEditProfile = () => {
           <h1>
             {tutor.firstname} {tutor.lastname}
           </h1>
-          <div className="profile-container">
-            <img
-              src={`http://localhost:8800/` + tutor.profilepicture}
-              alt="Profile"
-              width="50"
-              height="50"
-            />
-            <label htmlFor="profileImage">Profile Picture:</label>
-            <input type="file" onChange={handleFile} />
-            <button onClick={handleUpload}>upload</button>
-          </div>
+        </div>
+        <div>
+          <img
+            src={`http://localhost:8800/` + tutor.profilepicture}
+            alt="Profile"
+            width="50"
+            height="50"
+          />
+          <label htmlFor="profileImage">Profile Picture:</label>
+          <input type="file" onChange={handleFile} />
+          <button onClick={handleUpload}>upload</button>
         </div>
       </aside>
 
@@ -149,10 +152,12 @@ const TutorEditProfile = () => {
         <label htmlFor="subject">Subject: {tutor.subject}</label>
         <input type="text" placeholder="Subject" name="subject" required />
       </div>
-      <label htmlFor="hourstart">Available from: {tutor.hourstart}</label>
-      <label htmlFor="hourend" style={{ display: "block" }}>
-        Available to: {tutor.hourend}
-      </label>
+      <div className="availability-container">
+        <label htmlFor="hourstart">Available from: {tutor.hourstart}</label>
+        <label htmlFor="hourend" style={{ display: "block" }}>
+          Available to: {tutor.hourend}
+        </label>
+      </div>
 
       {/* Availability input */}
       <div className="availability-container">
