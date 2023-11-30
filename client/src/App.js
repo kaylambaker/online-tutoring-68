@@ -37,6 +37,7 @@ function App() {
             <Route path="/students/favorites_list/:StudentID" element={<FavoritesList/>}/>
             <Route path="/students/favorites_list/:StudentID/:TutorID" element={<AddToFavorites/>}/>
           <Route path="/studentdashboard" element={<StudentDashboard />} />
+            <Route path ="/TutorDashboard" element={<TutorDashboard />} />
           </Routes>
         </BrowserRouter>
       </div>
