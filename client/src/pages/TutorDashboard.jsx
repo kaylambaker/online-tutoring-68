@@ -68,7 +68,7 @@ const TutorDashboard = () => {
 
           <div className="action-buttons">
             <button className="update">
-              <Link to={`/update/${tutor.ID}`}>Update the tutor profile</Link>
+              <Link to={`/tutoredit/${tutor.ID}`}>Update the tutor profile</Link>
             </button>
           </div>
 
