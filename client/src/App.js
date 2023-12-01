@@ -1,17 +1,13 @@
-import './App.css';
+import "./App.css";
 
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from 'react-router-dom';
-import HomePage from './pages/Home';
-import SignupPage from './pages/Signup';
-import TutorProfilePage from './pages/TutorProfile';
-import CalendarPage from './pages/MyCalendar'
-import TutorSearchPage from './pages/TutorSearch'
-import TOTPSetup from './pages/TOTPSetup'
-import TOTPVerify from './pages/TOTPVerify'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/Home";
+import SignupPage from "./pages/Signup";
+import TutorProfilePage from "./pages/TutorProfile";
+import CalendarPage from "./pages/MyCalendar";
+import TutorSearchPage from "./pages/TutorSearch";
+import TOTPSetup from "./pages/TOTPSetup";
+import TOTPVerify from "./pages/TOTPVerify";
 import TutorEditProfile from "./pages/tutoredit";
 import StudentEditProfile from "./pages/studentedit";
 import Login from './pages/Login'

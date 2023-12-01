@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axios from '../config/axios'
-import FormInput from '../components/FormInput'
-import '../App.css'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../config/axios";
+import FormInput from "../components/FormInput";
+import "../App.css";
 
 const Login = () => {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginStatus, setLoginStatus] = useState("user not logged in");
+  const [loggedin, setLoggedin] = useState(false);
   const login = async () => {
     axios
       .get('/users/' + email + '/' + password)
@@ -35,12 +37,10 @@ const Login = () => {
       })
   }, [])
   return (
-    <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
-      <div className="flex flex-col pb-10 place-items-center">
-        <h1 className="text-2xl text-blue-500">Welcome to</h1>
-        <h1 className="text-2xl text-blue-500">Online Tutoring</h1>
-      </div>
+    <div className="side-menu-button">
       <div>
+        <h1>Welcome to</h1>
+        <h1>Online Tutoring</h1>
         <form id="login-form">
           <FormInput
             id="email"
@@ -71,9 +71,8 @@ const Login = () => {
           <br/>
           <button onClick={() => navigate('/')}>Back to home page</button>
         </form>
-      </div>
     </div>
   )
 }
 
-export default Login
+export default Login;

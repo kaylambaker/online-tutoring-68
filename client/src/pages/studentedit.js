@@ -3,6 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
 import '../App.css'
 
+// react-bootstrap components
+import {
+  Badge,
+  Button,
+  Card,
+  Form,
+  Navbar,
+  Nav,
+  Container,
+  Row,
+  Col,
+} from "react-bootstrap";
 const StudentEditProfile = () => {
   const navigate = useNavigate()
   const [student, setStudent] = useState(null)
@@ -81,6 +93,7 @@ const StudentEditProfile = () => {
           required
         />
         <label htmlFor="lastname">Last Name: {student.lastname} </label>
+
         <input
           type="text"
           placeholder="Last name"
