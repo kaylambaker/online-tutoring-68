@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import axios from "../config/axios";
-import "../App.css";
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from '../config/axios'
+import '../App.css'
 
 // react-bootstrap components
 import {
@@ -15,110 +16,66 @@ import {
   Col,
 } from "react-bootstrap";
 const StudentEditProfile = () => {
-  const [student, setStudent] = useState({
-    firstname: "",
-    lastname: "",
-    hourscompleted: 0, // Thêm giá trị HoursCompleted mặc định
-  });
-  //get user login session
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate()
+  const [student, setStudent] = useState(null)
+  const [user, setUser] = useState(null)
+  const [file, setFile] = useState()
+  const [data, setData] = useState([])
   useEffect(() => {
     axios
-      .get("http://localhost:8800/students")
-      .then((res) => setStudent(res.data))
-      .catch(console.log);
-    axios
-      .get("http://localhost:8800/users/session")
+      .get('http://localhost:8800/users/session')
       .then((res) => {
-        setUser(res.data);
+        if (!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
+        if (res.data.IsTutor === 1) navigate('/tutordashboard')
+        setUser(res.data)
+        setStudent(res.data)
       })
       .catch((err) => {
-        if (err.response.status == 404) alert("no user logged in");
-        else console.log(err);
-      });
-  }, []);
-  //const [selectedFile, setSelectedFile] = useState(null);
-  useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        const res = await axios.get("http://localhost:8800/students/2");
-        //console.log(res);
-        const studentData = res.data;
-        // Set the fetched data into the state
-        setStudent({
-          firstname: studentData.FirstName || "",
-          lastname: studentData.LastName || "",
-          profilepicture: studentData.ProfilePictureID || "",
-          hourscompleted: studentData.HoursCompleted || 0,
-        });
-        console.log("Student Data:", studentData);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchStudentData();
-  }, []);
-  const handleSaveChanges = async () => {
-    try {
-      // Create an object with the data to be sent to the backend
-      const updatedData = {
-        FirstName: student.firstname,
-        LastName: student.lastname,
-        HoursCompleted: student.hourscompleted,
-      };
-
-      // Send a PUT request to update the tutor's data in the database
-      const response = await axios.put(
-        "http://localhost:8800/students/2",
-        updatedData
-      );
-      console.log(updatedData);
-      // Handle the response, e.g., show a success message
-      console.log("Data updated successfully:", response.data);
-    } catch (error) {
-      // Handle any errors, e.g., show an error message
-      console.error("Error updating data:", error);
-    }
-  };
-  const [file, setFile] = useState();
-  const [data, setData] = useState([]);
-  const handleFile = (e) => {
-    setFile(e.target.files[0]);
-  };
-  useEffect(() => {
-    axios
-      .get("http://localhost:8800/")
-      .then((res) => {
-        setData(res.data[0]);
+        if (err.response.status == 404) {
+          navigate('/login')
+        } else console.log(err)
       })
-      .catch((err) => console.log(err));
-  }, []);
+  }, [])
+  const handleSaveChanges = async () => {
+    await axios
+      .put('students/' + user.ID, student)
+      .then((_) => window.location.reload(false))
+      .catch(console.log)
+  }
+  const handleFile = (e) => {
+    setFile(e.target.files[0])
+  }
+  const handleInputChange = (e) =>
+    setStudent((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+
   const handleUpload = () => {
-    const formData = new FormData();
-    formData.append("image", file);
+    const formData = new FormData()
+    formData.append('image', file)
     axios
-      .put("http://localhost:8800/users/profile_picture/2", formData)
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  };
+      .put('http://localhost:8800/users/profile_picture/' + user.ID, formData)
+      .then((_) => window.location.reload(false))
+      .catch(console.log)
+  }
+
+  if (!student || !user) return <div>Loading...</div>
 
   return (
     <div>
       <aside className="sidemenu">
         <div className="side-menu-button">
-          <h1>Home</h1>
-          <h1>Calendar</h1>
           <h1>
-            {student.firstname} {student.lastname}
+            {user.FirstName} {user.LastName}
           </h1>
         </div>
-        <div>
-          <img
-            src={`http://localhost:8800/` + student.profilepicture}
-            alt="Profile"
-            width="50"
-            height="50"
-          />
+        <div className="profile-container">
+          {student.ProfilePictureID && (
+            <img
+              src={`http://localhost:8800/` + student.ProfilePictureID}
+              alt="Profile"
+              width="50"
+              height="50"
+            />
+          )}
           <label htmlFor="profileImage">Profile Picture:</label>
           <input type="file" onChange={handleFile} />
           <button onClick={handleUpload}>upload</button>
@@ -127,15 +84,41 @@ const StudentEditProfile = () => {
       {/* Box accept input */}
       <div className="input-container">
         <label htmlFor="firstname">First Name: {student.firstname} </label>
-        <input type="text" placeholder="First name" name="firstname" required />
+        <input
+          type="text"
+          value={student.FirstName}
+          placeholder="First name"
+          name="FirstName"
+          onChange={handleInputChange}
+          required
+        />
         <label htmlFor="lastname">Last Name: {student.lastname} </label>
-        <input type="text" placeholder="Last name" name="lastname" required />
-        <label htmlFor="hourscompleted">
-          Hours Completed: {student.hourscompleted}{" "}
-        </label>
+
+        <input
+          type="text"
+          placeholder="Last name"
+          onChange={handleInputChange}
+          value={student.LastName}
+          name="LastName"
+          required
+        />
+        <div className="input-container">
+          <label>Email: </label>
+          <input
+            type="text"
+            placeholder="Email"
+            value={student.Email}
+            onChange={handleInputChange}
+            name="Email"
+            required
+          />
+        </div>
       </div>
       <button onClick={handleSaveChanges}>Save Changes</button>
+      <br/>
+      <br/>
+      <button onClick={()=>{navigate('/studentdashboard')}}>Back to dashboard</button>
     </div>
-  );
-};
-export default StudentEditProfile;
+  )
+}
+export default StudentEditProfile

@@ -12,83 +12,67 @@ const Login = () => {
   const [loggedin, setLoggedin] = useState(false);
   const login = async () => {
     axios
-      .get("/users/" + email + "/" + password)
+      .get('/users/' + email + '/' + password)
       .then((res) => {
-        setLoginStatus(
-          "logged in as " + res.data.FirstName + " " + res.data.LastName
-        );
-        if (res.data.TOTPEnabled == 0) navigate("/TOTPSetup");
-        else navigate("/TOTPVerify");
+        if (res.data.TOTPEnabled == 0) navigate('/TOTPSetup')
+        else navigate('/TOTPVerify')
       })
       .catch((err) => {
-        if (err.response.status == 404) alert("user not found");
-        else if (err.response.status == 401) alert("invalid password");
-        else console.log(err);
-      });
-  };
-  const logout = async () => {
-    axios
-      .delete("/users/session")
-      .then((res) => {
-        alert("logged out");
-        setLoginStatus("user not logged in");
-        setLoggedin(false);
+        if (err.response.status == 404) alert('user not found')
+        else if (err.response.status == 401) alert('invalid password')
+        else console.log(err)
       })
-      .catch(console.log);
-  };
+  }
   useEffect(() => {
     axios
-      .get("/users/session")
+      .get('/users/session')
       .then((res) => {
-        setLoginStatus(
-          "logged in as " + res.data.FirstName + " " + res.data.LastName
-        );
-        setLoggedin(true);
         res.data.IsTutor === 1
-          ? navigate("/tutordashboard")
-          : navigate("/studentdashboard");
+          ? navigate('/tutordashboard')
+          : navigate('/studentdashboard')
       })
       .catch((err) => {
         if (err.response && err.response.status == 404);
-        else console.log(err);
-      });
-  }, []);
+        else console.log(err)
+      })
+  }, [])
   return (
     <div className="side-menu-button">
       <div>
         <h1>Welcome to</h1>
         <h1>Online Tutoring</h1>
-      </div>
-
-      <form id="login-form">
-        <FormInput
-          id="email"
-          name="email"
-          labelText="Email Address"
-          type="email"
-          isRequired={true}
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <FormInput
-          id="password"
-          name="password"
-          labelText="Password"
-          type="password"
-          isRequired={true}
-          placeholder="****"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button
-          type="button"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
-          onClick={login}
-        >
-          Login
-        </button>
-      </form>
+        <form id="login-form">
+          <FormInput
+            id="email"
+            name="email"
+            labelText="Email Address: "
+            type="email"
+            isRequired={true}
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <FormInput
+            id="password"
+            name="password"
+            labelText="Password: "
+            type="password"
+            isRequired={true}
+            placeholder="****"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
+            onClick={login}
+          >
+            Login
+          </button>
+          <br/>
+          <br/>
+          <button onClick={() => navigate('/')}>Back to home page</button>
+        </form>
     </div>
-  );
-};
+  )
+}
 
 export default Login;

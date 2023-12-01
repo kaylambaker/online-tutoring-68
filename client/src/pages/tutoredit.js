@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import "../App.css";
-import axios from "../config/axios";
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import '../App.css'
+import axios from '../config/axios'
 
 const TutorEditProfile = () => {
   const [tutor, setTutor] = useState({
@@ -18,16 +19,20 @@ const TutorEditProfile = () => {
       .then((res) => setTutor(res.data))
       .catch(console.log);
     axios
-      .get("http://localhost:8800/users/session")
+      .get('/users/session')
       .then((res) => {
-        setUser(res.data);
+        if (!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
+        if (res.data.IsTutor === 0) navigate('/studentdashboard')
+        setUser(res.data)
+        setTutor(res.data)
       })
       .catch((err) => {
-        if (err.response.status == 404) alert("no user logged in");
-        else console.log(err);
-      });
-  }, []);
-
+        if (err.response.status == 404) {
+          alert('not logged in')
+          navigate('/login')
+        } else console.log(err)
+      })
+  }
   //fetch tutor infor from database
   useEffect(() => {
     const fetchTutorData = async () => {
@@ -90,61 +95,112 @@ const TutorEditProfile = () => {
     setFile(e.target.files[0]);
   };
   useEffect(() => {
+
     axios
-      .get("http://localhost:8800/")
+      .get('http://localhost:8800/')
       .then((res) => {
-        setData(res.data[0]);
+        setData(res.data[0])
       })
-      .catch((err) => console.log(err));
-  }, []);
+      .catch((err) => console.log(err))
+  }, []) */
   const handleUpload = () => {
-    const formData = new FormData();
-    formData.append("image", file);
+    const formData = new FormData()
+    formData.append('image', file)
     axios
-      .put("http://localhost:8800/users/profile_picture/34", formData)
+      .put('http://localhost:8800/users/profile_picture/' + user.ID, formData)
       .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  };
-  // Generate arrays for hours, minutes, and AM/PM options
-  const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
-  const minutes = Array.from({ length: 60 }, (_, i) =>
-    i.toString().padStart(2, "0")
-  );
-  const amPmOptions = ["AM", "PM"];
+      .catch((err) => console.log(err))
+    window.location.reload(false)
+  }
+
+  const handleSaveChanges = async () => {
+    await axios
+      .put('/tutors/' + user.ID, tutor)
+      .then((res) => {
+        window.location.reload(false)
+      })
+      .catch(console.log)
+  }
+
+  const [file, setFile] = useState()
+  const [data, setData] = useState([])
+  const handleFile = (e) => {
+    setFile(e.target.files[0])
+  }
+
+  const handleInputChange = (e) =>
+    setTutor((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+
+  if (!user || !tutor) return <div>Loading...</div>
 
   return (
     <div>
       <aside className="sidemenu">
         <div className="side-menu-button">
-          <h1>Home</h1>
-          <h1>Calendar</h1>
           <h1>
-            {tutor.firstname} {tutor.lastname}
+            {user.FirstName} {user.LastName}
           </h1>
-        </div>
-        <div>
-          <img
-            src={`http://localhost:8800/` + tutor.profilepicture}
-            alt="Profile"
-            width="50"
-            height="50"
-          />
-          <label htmlFor="profileImage">Profile Picture:</label>
-          <input type="file" onChange={handleFile} />
-          <button onClick={handleUpload}>upload</button>
+          <div className="profile-container">
+            {user.ProfilePictureID && (
+              <img
+                src={'http://localhost:8800/' + user.ProfilePictureID}
+                alt="Profile"
+                width="50"
+                height="50"
+              />
+            )}
+            <label htmlFor="profileImage">Profile Picture:</label>
+            <input type="file" onChange={handleFile} />
+            <button onClick={handleUpload}>upload</button>
+          </div>
         </div>
       </aside>
 
       {/* Bio input */}
       <div className="input-container">
-        <label htmlFor="bio">Bio: {tutor.bio}</label>
-        <input type="text" placeholder="Bio" name="bio" required />
+        <label>First Name: </label>
+        <input
+          type="text"
+          value={tutor.FirstName}
+          name="FirstName"
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      {/* Bio input */}
+      <div className="input-container">
+        <label>Last Name: </label>
+        <input
+          type="text"
+          value={tutor.LastName}
+          name="LastName"
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      {/* Bio input */}
+      <div className="input-container">
+        <label>Bio: </label>
+        <input
+          type="text"
+          value={tutor.Bio}
+          name="Bio"
+          onChange={handleInputChange}
+          required
+        />
       </div>
 
       {/* Email input */}
       <div className="input-container">
-        <label htmlFor="email">Email: {tutor.email}</label>
-        <input type="text" placeholder="Email" name="email" required />
+        <label>Email: </label>
+        <input
+          type="text"
+          placeholder="Email"
+          value={tutor.Email}
+          onChange={handleInputChange}
+          name="Email"
+          required
+        />
       </div>
 
       {/* Courses input */}
@@ -212,13 +268,46 @@ const TutorEditProfile = () => {
             ))}
           </select>
         </div>
+        <label htmlFor="subject">Subject: </label>
+        <input
+          type="text"
+          placeholder="Subject"
+          name="Subject"
+          value={tutor.Subject}
+          onChange={handleInputChange}
+          required
+        />
       </div>
+      <label>available hours</label>
+      <br />
+      <label>start time</label>
+      <br />
+      <input
+        type="time"
+        value={tutor.AvailableHoursStart}
+        name="AvailableHoursStart"
+        onChange={handleInputChange}
+      />
+      <br />
+      <label>end time</label>
+      <br />
+      <input
+        type="time"
+        value={tutor.AvailableHoursEnd}
+        name="AvailableHoursEnd"
+        onChange={handleInputChange}
+      />
+      <br />
       {/* Save Changes button */}
+      <br />
       <button type="submit" onClick={handleSaveChanges}>
         Save Changes
       </button>
+      <br/>
+      <br/>
+      <button onClick={()=>{navigate('/TutorDashboard')}}>Back to dashboard</button>
     </div>
-  );
-};
+  )
+}
 
-export default TutorEditProfile;
+export default TutorEditProfile

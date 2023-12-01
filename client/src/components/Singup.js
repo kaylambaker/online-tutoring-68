@@ -1,11 +1,12 @@
+
 import { useState } from "react";
 import FormInput from "./FormInput";
 import FormSelect from "./FormSelect";
 import FormGroupCheckbox from "./FormGroupCheckbox";
 import FormTextArea from "./FormTextArea";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
+import axios from '../config/axios'
+import { useNavigate } from 'react-router-dom'
 
 let navigate;
 const userTypeOptions = [
@@ -51,20 +52,45 @@ let initialState = {
 };
 
 function submitForm(event) {
-  const form = document.getElementById("registration-form");
-  if (form.checkValidity() && validatePassword()) {
-    event.preventDefault();
-    const data = {
-      FirstName: document.getElementById("firstname").value,
-      LastName: document.getElementById("lastname").value,
-      Email: document.getElementById("email").value,
-      Password: document.getElementById("password").value,
-      HoursCompleted: 0,
-      IsTutor: document.getElementById("user_type").value,
-    };
-    var apiEndpoint = "";
-    if (document.getElementById("user_type").value == "0") {
-      apiEndpoint = "students";
+    const form = document.getElementById('registration-form');
+    if (form.checkValidity() && validatePassword()){ 
+        event.preventDefault();
+        const data = { 
+            FirstName: document.getElementById('firstname').value,
+            LastName: document.getElementById('lastname').value,
+            Email: document.getElementById('email').value,
+            Password: document.getElementById('password').value,
+            HoursCompleted: 0,
+            IsTutor: document.getElementById('user_type').value
+        };
+        var apiEndpoint = '';
+        if (document.getElementById('user_type').value == '0') {
+            apiEndpoint = 'students';
+        } else {
+            apiEndpoint = 'tutors';
+            data['Bio'] = document.getElementById('bio').value
+            var selectedSubject = [];
+            subjects.forEach((subject,index) => {
+                if (document.getElementById(`subjects-${index}`).checked) {
+                    selectedSubject.push(subject.lableText);
+                }
+            });
+            data['Subject'] = selectedSubject.join(', ');
+            data['AvailableHoursStart'] = document.getElementById('availablehoursstart').value;
+            data['AvailableHoursEnd'] = document.getElementById('availablehoursend').value;
+        }
+        axios.post(`http://localhost:8800/${apiEndpoint}`, data)
+        .then((response)=>{
+            alert('Account created successfully!')
+            axios.get('/users/'+data.Email+'/'+data.Password)
+            .then((_)=>navigate('/TOTPSetup'))
+            .catch((err)=>{
+              alert("something went wrong")
+              console.log(err)
+            })
+        }).catch((error)=>{
+            alert(error.response.data.sqlMessage || error.response.data.message || error)
+        });
     } else {
       apiEndpoint = "tutors";
       data["Bio"] = document.getElementById("bio").value;

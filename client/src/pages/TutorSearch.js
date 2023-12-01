@@ -1,30 +1,30 @@
-import { InputGroup, Form, Container, Table } from "react-bootstrap";
-import axios from "../config/axios";
-import { React, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../App.css";
+import { InputGroup, Form, Container, Table } from 'react-bootstrap'
+import axios from '../config/axios'
+import { React, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import '../App.css'
 
 const TutorSearchPage = () => {
-  let navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  const [tutors, setTutors] = useState([]);
-  const [user, setUser] = useState(null);
+  let navigate = useNavigate()
+  const [search, setSearch] = useState('')
+  const [tutors, setTutors] = useState([])
+  const [user, setUser] = useState(null)
   useEffect(() => {
     axios
-      .get("http://localhost:8800/tutors")
+      .get('http://localhost:8800/tutors')
       .then((res) => setTutors(res.data))
-      .catch(console.log);
+      .catch(console.log)
     axios
-      .get("/users/session")
+      .get('/users/session')
       .then((res) => {
-        setUser(res.data);
-        if (!res.data.SessionTOTPVerified) navigate("/TOTPVerify");
+        setUser(res.data)
+        if (!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
       })
       .catch((err) => {
-        if (err.response.status == 404) navigate("/login");
-        else console.log(err);
-      });
-  }, []);
+        if (err.response.status == 404) navigate('/login')
+        else console.log(err)
+      })
+  }, [])
   return (
     <div>
       <Container>
@@ -33,11 +33,11 @@ const TutorSearchPage = () => {
             <Form.Control
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or subject"
-              style={{ margin: "auto", width: "100%" }}
+              style={{ margin: 'auto', width: '100%' }}
             />
           </InputGroup>
         </Form>
-        <Table style={{ margin: "auto", width: "100%", textAlign: "left" }}>
+        <Table style={{ margin: 'auto', width: '100%', textAlign: 'left' }}>
           <thead>
             <tr>
               <th>Tutor</th>
@@ -48,32 +48,41 @@ const TutorSearchPage = () => {
             {tutors
               .filter((tutor) => {
                 let matchSubject = tutor.Subject.toLowerCase().includes(
-                  search.toLowerCase()
-                );
-                let matchNameInorder = (tutor.FirstName + " " + tutor.LastName)
+                  search.toLowerCase(),
+                )
+                let matchNameInorder = (tutor.FirstName + ' ' + tutor.LastName)
                   .toLowerCase()
-                  .includes(search.toLowerCase());
-                let matchNameReverse = (tutor.LastName + " " + tutor.FirstName)
+                  .includes(search.toLowerCase())
+                let matchNameReverse = (tutor.LastName + ' ' + tutor.FirstName)
                   .toLowerCase()
-                  .includes(search.toLowerCase());
+                  .includes(search.toLowerCase())
                 if (matchSubject || matchNameInorder || matchNameReverse)
-                  return tutor;
+                  return tutor
               })
               .map((tutor) => (
                 <tr
                   key={tutor.ID}
-                  onClick={() => navigate("/tutor/" + tutor.ID)}
-                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate('/tutor/' + tutor.ID)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <td>{tutor.FirstName + " " + tutor.LastName}</td>
+                  <td>{tutor.FirstName + ' ' + tutor.LastName}</td>
                   <td>{tutor.Subject}</td>
                 </tr>
               ))}
           </tbody>
         </Table>
       </Container>
+      <button
+        onClick={() =>
+          user.IsTutor == 1
+            ? navigate('/TutorDashboard')
+            : navigate('/studentdashboard')
+        }
+      >
+        Dashboard
+      </button>
     </div>
-  );
-};
+  )
+}
 
-export default TutorSearchPage;
+export default TutorSearchPage

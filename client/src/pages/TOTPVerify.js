@@ -20,7 +20,7 @@ const TOTPVerify = () => {
       })
       .catch((err) => {
         // if no session user, go to login
-        if (err.response.status == 404) navigate("/login");
+        if (err.response && err.response.status == 404) navigate("/login");
         else console.log(err);
       });
   }, []);
@@ -28,7 +28,7 @@ const TOTPVerify = () => {
     axios
       .get("/verifyTOTP/" + user.ID + "/" + code)
       .then((res) => {
-        alert('TOTP verified :)')
+        // alert('TOTP verified :)')
         res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
       })
       .catch((err) => {
@@ -60,6 +60,9 @@ const TOTPVerify = () => {
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={validateCode}
           >Validate Code</button>
+          <br/>
+          <br/>
+          <button onClick={()=>navigate("/logout")}>logout</button>
         </form>
       </div>
     </div>
