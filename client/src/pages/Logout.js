@@ -10,7 +10,7 @@ const Logout = () => {
       .delete('/users/session')
       .then((res) => {
         alert('logged out')
-        navigate('/login');
+        navigate('/');
       })
       .catch(console.log)
   }

@@ -56,3 +56,9 @@
 .update:hover {
   background-color: #abc7e4;
 }
+.profile-picture {
+  width: 100px; /* Adjust the width as needed */
+  height: 100px; /* Adjust the height as needed */
+  border-radius: 50%; /* To make it circular, adjust as needed */
+  margin-right: 20px; /* Margin to separate the picture from text */
+}

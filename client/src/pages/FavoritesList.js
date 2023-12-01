@@ -2,26 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../config/axios';
 
+
 export default function FavoritesList() {
-  const { StudentID } = useParams();
-  const [favorites, setFavorites] = useState([]);
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
+  const [StudentID,setStudentID]=useState(-1)
+  const [favorites, setFavorites] = useState([])
+  const [user, setUser] = useState(null)
+  const navigate = useNavigate()
 
   // Fetch session user
   useEffect(() => {
-    axios.get('/users/session')
-      .then(res => {
-        setUser(res.data);
+    axios
+      .get('/users/session')
+      .then((res) => {
+        setUser(res.data)
+        setStudentID(res.data.ID)
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.response.status === 404) {
-          alert("No user logged in");
+          alert('No user logged in')
+          navigate('/login')
         } else {
-          console.log(err);
+          console.log(err)
         }
-      });
-  }, []);
+      })
+  }, [])
 
   useEffect(() => {
     // Fetch favorites
@@ -46,14 +50,15 @@ export default function FavoritesList() {
             formattedFavorites.push(tutorDetails);
           }
 
-          setFavorites(formattedFavorites);
+
+          setFavorites(formattedFavorites)
         }
       })
       .catch((error) => {
-        console.error('Error fetching favorites list:', error.message);
-        alert(error.response?.data?.sqlMessage || error.message);
-      });
-  }, [StudentID, navigate]);
+        console.error('Error fetching favorites list:', error.message)
+        alert(error.response?.data?.sqlMessage || error.message)
+      })
+  }, [StudentID, navigate])
 
   const handleDelete = (tutorID) => {
     // Send delete request to remove the favorite
@@ -61,15 +66,17 @@ export default function FavoritesList() {
       .then((response) => {
         // Refresh the list after successful deletion
         const updatedFavorites = favorites.filter(
-          (favorite) => favorite.id !== tutorID
-        );
-        setFavorites(updatedFavorites);
+          (favorite) => favorite.id !== tutorID,
+        )
+        setFavorites(updatedFavorites)
       })
       .catch((error) => {
-        console.error('Error deleting favorite:', error.message);
-        alert(error.response?.data?.sqlMessage || error.message);
-      });
-  };
+        console.error('Error deleting favorite:', error.message)
+        alert(error.response?.data?.sqlMessage || error.message)
+      })
+  }
+
+  if (!user || StudentID==-1) return <div>Loading...</div>
 
   return (
     <div className="container">
@@ -77,22 +84,28 @@ export default function FavoritesList() {
       {favorites.map((favorite) => (
         <div key={favorite.id}>
           <p>Name: {favorite.name}</p>
+
           <p>Student ID: {favorite.StudentID}</p>
           <p>Tutor ID: {favorite.id}</p>
           <p>Bio: {favorite.bio}</p>
           <p>Subject: {favorite.subject}</p>
           <p>
+
             Available Hours: {favorite.availableHoursStart} - {favorite.availableHoursEnd}
+
           </p>
           {/* Button to redirect to the tutor's page */}
           <Link to={`/tutor/${favorite.id}`}>
             <button style={{ marginRight: '10px' }}>View Tutor</button>
           </Link>
+
           <button onClick={() => handleDelete(favorite.id)}
             style={{ marginRight: '10px', backgroundColor: 'red', color: 'white' }}> Delete </button>
+
           <hr />
         </div>
       ))}
     </div>
+
   );
 }

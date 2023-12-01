@@ -72,24 +72,48 @@ const transporter = nodemailer.createTransport({
 })
 
 const sendReminder = async (apptID) => {
-  const q =
-    'select Appointments.ID, u1.FirstName, u1.LastName, AppointmentDate, StartTime,EndTime,u2.Email from Appointments join Users as u1 on TutorID=u1.ID join Users as u2 on StudentID=u2.ID where Appointments.ID=?;'
+  const q = `
+  select Appointments.ID, tutor.FirstName as TutorFirstName, tutor.LastName as TutorLastName, 
+  student.FirstName as StudentFirstName, student.LastName as StudentLastName, AppointmentDate, 
+StartTime,EndTime,cast(aes_decrypt(student.Email,?) as char)  as StudentEmail,
+cast(aes_decrypt(tutor.email,?) as char) as TutorEmail from Appointments join Users as tutor 
+on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointments.ID=?;
+`
   db.promise()
-    .query(q, apptID)
+    .query(q, [process.env.AES_KEY, process.env.AES_KEY, apptID])
     .then(([tuples, _]) => {
       const appt = tuples[0]
-      const html = ` 
+      const emailToStudent = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with ${appt.FirstName} ${appt.LastName} 
+        <p>You have an appointment with tutor ${appt.TutorFirstName} ${
+          appt.TutorLastName
+        } 
+        on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
+        from ${appt.StartTime} to ${appt.EndTime}</p>
+      `
+      const emailToTutor = ` 
+        <h1>Tutoring Appointment Reminder</h1>
+        <p>You have an appointment with student ${appt.StudentFirstName} ${
+          appt.StudentLastName
+        } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${appt.StartTime} to ${appt.EndTime}</p>
       `
       transporter
         .sendMail({
           from: 'online tutoring <online.tutoring.68@gmail.com>',
-          to: appt.Email,
+          to: appt.StudentEmail,
           subject: 'Tutoring Appointment Reminder',
-          html: html,
+          html: emailToStudent,
+        })
+        .then((info) => {})
+        .catch(console.log)
+      transporter
+        .sendMail({
+          from: 'online tutoring <online.tutoring.68@gmail.com>',
+          to: appt.TutorEmail,
+          subject: 'Tutoring Appointment Reminder',
+          html: emailToTutor,
         })
         .then((info) => {})
         .catch(console.log)
@@ -125,9 +149,11 @@ app.post('/appointments', async (req, res) => {
 // query parameters: ID
 // body parameters: tutor colums except ID, Email, IsTutor, and hashed passowrd
 app.put('/tutors/:id', (req, res) => {
-  const q =
+  const update =
     'update Tutors natural join Users set bio=?,Subject=?,AvailableHoursStart=?,AvailableHoursEnd=?,FirstName=?, LastName=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
-  const values = [
+  const getTutor =
+    'select ID,cast(aes_decrypt(Email,?) as char) as Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled,Bio,AvailableHoursStart,AvailableHoursEnd,Subject from Users natural join Tutors where ID=?'
+  const updateVals = [
     req.body.Bio,
     req.body.Subject,
     req.body.AvailableHoursStart,
@@ -138,10 +164,23 @@ app.put('/tutors/:id', (req, res) => {
     req.body.ProfilePictureID,
     req.params.id,
   ]
-  db.query(q, values, (err, data) => {
-    if (err) return res.status(400).send(err)
-    return res.json(data)
-  })
+  const getTutorVals = [process.env.AES_KEY, req.params.id]
+  db.promise()
+    .query(update, updateVals)
+    .then(([tuples, fields]) => {
+      db.promise()
+        .query(getTutor, getTutorVals)
+        .then(([tuples, fields]) => {
+          req.session.user = { ...tuples[0], SessionTOTPVerified: true }
+          return res.status(200).send(tuples)
+        })
+        .catch((err) => {
+          return res.status(400).send(err)
+        })
+    })
+    .catch((err) => {
+      return res.status(400).send(err)
+    })
 })
 
 // retrieve tutor by ID
@@ -164,22 +203,41 @@ app.get('/tutors/:id', (req, res) => {
 // query parameters: ID
 // body parameters: all student attributes except ID, Email, IsTutor and hashed passowrd
 app.put('/students/:id', (req, res) => {
-  const q =
+  const update =
     'update Students natural join Users set FirstName=?,LastName=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
-  const values = [
+  const updateVals = [
     req.body.FirstName,
     req.body.LastName,
     req.body.HoursCompleted,
     req.body.ProfilePictureID,
     req.params.id,
   ]
-  db.query(q, values, (err, data) => {
+  const getStudent =
+    'select ID,cast(aes_decrypt(Email,?) as char) as Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where ID=?;'
+  const getStudentVals = [process.env.AES_KEY, req.params.id]
+  db.promise()
+    .query(update, updateVals)
+    .then(([tuples, fields]) => {
+      db.promise()
+        .query(getStudent, getStudentVals)
+        .then(([tuples, fields]) => {
+          req.session.user = { ...tuples[0], SessionTOTPVerified: true }
+          return res.status(200).send(tuples)
+        })
+        .catch((err) => {
+          return res.status(400).send(err)
+        })
+    })
+    .catch((err) => {
+      return res.status(400).send(err)
+    })
+  /* db.query(q, values, (err, data) => {
     if (err) {
       console.log(err)
       return res.status(500).send(err)
     }
     return res.status(200).send(data)
-  })
+  }) */
 })
 
 //to show all the appointments
@@ -319,9 +377,18 @@ app.post('/createAppointment', (req, res) => {
 
   const insertQuery = `INSERT INTO Appointments 
     (StudentID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-  const values = [studentID, tutorID, appointmentDate, startTime, endTime, defaultSubject, defaultNotes, defaultMeetingLink];
+  const values = [
+    studentID,
+    tutorID,
+    appointmentDate,
+    startTime,
+    endTime,
+    defaultSubject,
+    defaultNotes,
+    defaultMeetingLink,
+  ]
 
   db.query(insertQuery, values, (err, result) => {
     if (err) {
@@ -339,20 +406,26 @@ app.post('/createAppointment', (req, res) => {
 // async is needed to allow await for bcrypt to hash.
 app.post('/tutors', async (req, res) => {
   const createUserQuery =
-    'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
+    'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (aes_encrypt(?,?),?,?,?,?,?,?);'
   const createTutorQuery =
     'insert into Tutors (ID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd) values (?);'
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/
-  if (!passwordRegex.test(req.body.Password)) {
-    return res.status(403).send({
-      message:
-        'Password must be at least 8 characters,one capital letter,one special character,and at least one digit',
-    })
-  }
+  const tutorInfoQuery =
+    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Tutors where Email=?'
+
+  let result = await checkCriminalBackground(
+    req.body.FirstName,
+    req.body.LastName,
+    req.body.Email,
+  )
+  if (result) return res.status(403).send({ message: result })
+
+  result = checkPasswordStrength(req.body.Password)
+  if (result) return res.status(403).send({ message: result })
+
   const hashedPassword = await bcrypt.hash(req.body.Password, 10)
   const createUserValues = [
     req.body.Email,
+    process.env.AES_KEY,
     req.body.FirstName,
     req.body.LastName,
     hashedPassword,
@@ -360,7 +433,7 @@ app.post('/tutors', async (req, res) => {
     req.body.ProfilePictureID,
     req.body.IsTutor,
   ]
-  db.query(createUserQuery, [createUserValues], (err, data) => {
+  db.query(createUserQuery, createUserValues, (err, data) => {
     if (err) return res.status(400).send(err)
     const createTutorValues = [
       data.insertId,
@@ -371,7 +444,11 @@ app.post('/tutors', async (req, res) => {
     ]
     db.query(createTutorQuery, [createTutorValues], (err, data2) => {
       if (err) return res.status(400).send(err)
-      return res.status(200).send(data2)
+      db.query(tutorInfoQuery, [req.body.Email], (err, data3) => {
+        if (err) return res.status(500).send(err)
+        req.session.user = { ...data3[0], SessionTOTPVerified: false }
+        return res.status(200).send(data3)
+      })
     })
   })
 })
@@ -384,19 +461,25 @@ app.post('/tutors', async (req, res) => {
 // async is needed to allow await for bcrypt to hash.
 app.post('/students', async (req, res) => {
   const createUserQuery =
-    'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
+    'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (aes_encrypt(?,?),?,?,?,?,?,?);'
   const createStudentQuery = 'insert into Students (ID) values (?);'
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/
-  if (!passwordRegex.test(req.body.Password)) {
-    return res.status(403).send({
-      message:
-        'Password must be at least 8 characters,one capital letter,one special character,and at least one digit',
-    })
-  }
+  const studentInfoQuery =
+    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=?'
+
+  let result = await checkCriminalBackground(
+    req.body.FirstName,
+    req.body.LastName,
+    req.body.Email,
+  )
+  if (result) return res.status(403).send({ message: result })
+
+  result = checkPasswordStrength(req.body.Password)
+  if (result) return res.status(403).send({ message: result })
+
   const hashedPassword = await bcrypt.hash(req.body.Password, 10)
   const createUserValues = [
     req.body.Email,
+    process.env.AES_KEY,
     req.body.FirstName,
     req.body.LastName,
     hashedPassword,
@@ -404,12 +487,16 @@ app.post('/students', async (req, res) => {
     req.body.ProfilePictureID,
     req.body.IsTutor,
   ]
-  db.query(createUserQuery, [createUserValues], (err, data) => {
+  db.query(createUserQuery, createUserValues, (err, data) => {
     if (err) return res.status(400).send(err)
     const createStudentValues = [data.insertId]
     db.query(createStudentQuery, [createStudentValues], (err, data2) => {
       if (err) return res.status(400).send(err)
-      res.status(201).send(data2)
+      db.query(studentInfoQuery, [req.body.Email], (err, data3) => {
+        if (err) return res.status(500).send(err)
+        req.session.user = { ...data3[0], SessionTOTPVerified: false }
+        return res.status(200).send(data3)
+      })
     })
   })
 })
@@ -435,14 +522,13 @@ app.delete('/users/session', (req, res) => {
 // returns: all Users attributes from database
 //          returns 1 user
 app.get('/users/:Email/:Password', async (req, res) => {
-  const getUser = 'select * from Users where Email=?'
+  const getUser = 'select * from Users where Email=aes_encrypt(?,?);'
   const getTutor =
-    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Tutors where Email=?'
+    'select ID,cast(aes_decrypt(Email,?) as char) as Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled,Bio,AvailableHoursStart,AvailableHoursEnd,Subject from Users natural join Tutors where Email=aes_encrypt(?,?)'
   const getStudent =
-    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=?'
-  const values = [req.params.Email]
+    'select ID,cast(aes_decrypt(Email,?) as char) as Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,TOTPEnabled from Users natural join Students where Email=aes_encrypt(?,?)'
   let getNoPassword = ''
-  db.query(getUser, values, (err, data) => {
+  db.query(getUser, [req.params.Email, process.env.AES_KEY], (err, data) => {
     if (err) return res.status(500).send(err)
     // if no tuples in result
     if (data.length == 0) return res.status(404).send('user not found')
@@ -454,11 +540,15 @@ app.get('/users/:Email/:Password', async (req, res) => {
       if (res2) {
         if (user.IsTutor == 0) getNoPassword = getStudent
         else getNoPassword = getTutor
-        db.query(getNoPassword, [req.params.Email], (err, data) => {
-          if (err) return res.status(500).send(err)
-          req.session.user = { ...data[0], SessionTOTPVerified: false }
-          return res.status(200).send(req.session.user)
-        })
+        db.query(
+          getNoPassword,
+          [process.env.AES_KEY, req.params.Email, process.env.AES_KEY],
+          (err, data) => {
+            if (err) return res.status(500).send(err)
+            req.session.user = { ...data[0], SessionTOTPVerified: false }
+            return res.status(200).send(req.session.user)
+          },
+        )
       } else return res.status(401).send('invalid password')
     })
   })
@@ -554,6 +644,10 @@ app.put('/users/profile_picture/:id', upload.single('image'), (req, res) => {
       [req.file.filename, req.params.id],
       (err2, data2) => {
         if (err2) return res.status(500).send(err2)
+        req.session.user = {
+          ...req.session.user,
+          ProfilePictureID: req.file.filename,
+        }
         return res.status(200).send(data2)
       },
     )
@@ -594,7 +688,6 @@ app.get('/tutors', (req, res) => {
       Users.ID, \
       Users.FirstName, \
       Users.LastName,\
-      Users.Email, \
       Users.HoursCompleted, \
       Tutors.Bio, \
       Tutors.Subject, \
@@ -690,3 +783,30 @@ app.get('/hoursCompleted/:id', (req, res) => {
 app.listen(8800, () => {
   console.log('connected to backend!')
 })
+
+function checkPasswordStrength(password) {
+  const passwordRegex =
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/
+  if (passwordRegex.test(password)) {
+    return false
+  } else {
+    return 'Password must be at least 8 characters,one capital letter,one special character,and at least one digit'
+  }
+}
+
+async function checkCriminalBackground(first_name, last_name, email) {
+  const checkquery =
+    'select * from Criminals where FirstName = ? and LastName = ? and Email=aes_encrypt(?,?)'
+  const promisDb = db.promise()
+  const [rows, fields] = await promisDb.query(checkquery, [
+    first_name,
+    last_name,
+    email,
+    process.env.AES_KEY,
+  ])
+  if (rows.length == 0) {
+    return false
+  } else {
+    return 'Criminal Background check failed'
+  }
+}
