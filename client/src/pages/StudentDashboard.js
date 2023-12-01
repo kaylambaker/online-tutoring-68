@@ -1,85 +1,70 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import axios from "../config/axios";
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from '../config/axios'
 //import "../styles/StudentDashboard.module.css";
-import "../App.css";
+import '../App.css'
 //import "../StudentDashboard.css";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate()
   const [student, setStudent] = useState({
-    name: "",
-  });
-  const [user, setUser] = useState(null);
-  useEffect(() => {
+    name: '',
+  })
+  const [selectedFile, setSelectedFile] = useState(null)
+  //get hours completed from end point
+  const [hour, setHoursCompleted] = useState(0)
+  const [user, setUser] = useState(null)
+  const getHoursComplete = (id) => {
     axios
-      .get("http://localhost:8800/students")
-      .then((res) => setStudent(res.data))
-      .catch(console.log);
-    axios
-      .get("http://localhost:8800/users/session")
+      .get('/hoursCompleted/' + id)
       .then((res) => {
-        setUser(res.data);
+        setHoursCompleted(res.data.HoursCompleted)
       })
       .catch((err) => {
-        if (err.response.status == 404) alert("no user logged in");
-        else console.log(err);
-      });
-  }, []);
-  const [selectedFile, setSelectedFile] = useState(null);
+        console.log(err)
+      })
+  }
+  const getUser = () => {
+    axios
+      .get('/users/session')
+      .then((res) => {
+        setUser(res.data)
+        if (!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
+        if (res.data.IsTutor === 0) navigate('/studentdashboard')
+        getHoursComplete(res.data.ID)
+      })
+      .catch((err) => {
+        if (err.response.status == 404) {
+          alert('not logged in')
+          navigate('/login')
+        } else console.log(err)
+      })
+  }
+
   useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        const res = await axios.get("http://localhost:8800/students/2");
-        console.log(res);
-        const studentData = res.data;
-        // Set the fetched data into the state
-        setStudent({
-          firstname: studentData.FirstName || "",
-          lastname: studentData.LastName || "",
-          //hourscompleted: studentData.HoursCompleted || 0,
-          profilepicture: studentData.ProfilePictureID || "",
-        });
-        console.log("Student Data:", studentData);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchStudentData();
-  }, []);
-  //get hours completed from end point
-  const [hour, setHoursCompleted] = useState({
-    hourscompleted: "",
-  });
-  useEffect(() => {
-    const fetchHoursCompleted = async () => {
-      try {
-        const res = await axios.get("http://localhost:8800/hoursCompleted/2");
-        console.log(res);
-        const hoursCompleted = res.data;
-        // Set the fetched data into the state
-        setHoursCompleted({
-          hourscompleted: hour.hourscompleted || "",
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchHoursCompleted();
-  }, []);
+    getUser()
+  }, [])
+
+  if (!user) {
+    return <div>Loading...</div>
+  }
+
+  // Ensure that tutor is not null before accessing its properties
+  const profilePictureID = user ? user.ProfilePictureID : null
   return (
     <div className="dashboard-container">
       <h1>Student Dashboard</h1>
-      <div className="profile-container-dashboard">
-        <img
-          src={`http://localhost:8800/` + student.profilepicture}
-          alt="Profile"
-          width="500"
-          height="500"
-          className="profile-image"
-        />
-      </div>
+      {profilePictureID && (
+        <div className="info">
+          <img
+            src={`http://localhost:8800/` + profilePictureID}
+            alt="Profile"
+            className="profile-picture"
+          />
+        </div>
+      )}
       <div>
-        <p>Hours Completed: {hour.hourscompleted}</p>
+        <p>Hours Completed: {hour}</p>
       </div>
       <div>
         <Link to="/calendar">View Calendar</Link>
@@ -87,23 +72,14 @@ const StudentDashboard = () => {
       <div>
         <Link to="/studentedit">Edit Profile</Link>
       </div>
+      <button onClick={() => navigate('/tutor/search')}>search tutor</button>
+      <button onClick={() => navigate('/students/favorites_list')}>
+        favorites list
+      </button>
+      <button onClick={() => navigate('/logout')}>logout</button>
+      <button onClick={() => navigate('/')}>home page</button>
     </div>
-  );
-};
+  )
+}
 
-const handleViewFavoritesClick = () => {
-  // Xử lý khi nhấn nút "View Favorites List"
-  console.log("View Favorites List clicked");
-};
-
-const handleViewCalendarClick = () => {
-  // Xử lý khi nhấn nút "View Calendar"
-  console.log("View Calendar clicked");
-};
-
-const handleEditProfileClick = () => {
-  // Xử lý khi nhấn nút "Edit Profile"
-  console.log("Edit Profile clicked");
-};
-
-export default StudentDashboard;
+export default StudentDashboard

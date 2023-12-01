@@ -13,11 +13,13 @@ import TutorSearchPage from './pages/TutorSearch'
 import TOTPSetup from './pages/TOTPSetup'
 import TOTPVerify from './pages/TOTPVerify'
 import TutorEditProfile from "./pages/tutoredit";
+import StudentEditProfile from "./pages/studentedit";
 import Login from './pages/Login'
 import Logout from './pages/Logout'
 import FavoritesList from './pages/FavoritesList';
 import AddToFavorites from './pages/AddToFavorites';
 import StudentDashboard from './pages/StudentDashboard'
+import TutorDashboard from './pages/TutorDashboard'
 
 function App() {
   return (
@@ -32,9 +34,10 @@ function App() {
             <Route path="/TOTPSetup" element={<TOTPSetup/>} />
             <Route path="/TOTPVerify" element={<TOTPVerify/>} />
             <Route path="/tutoredit" element={<TutorEditProfile />} />
+            <Route path="/studentedit" element={<StudentEditProfile />} />
             <Route path="/login" element={<Login/>} />
             <Route path="/logout" element={<Logout/>} />
-            <Route path="/students/favorites_list/:StudentID" element={<FavoritesList/>}/>
+            <Route path="/students/favorites_list" element={<FavoritesList/>}/>
             <Route path="/students/favorites_list/:StudentID/:TutorID" element={<AddToFavorites/>}/>
           <Route path="/studentdashboard" element={<StudentDashboard />} />
             <Route path ="/TutorDashboard" element={<TutorDashboard />} />

@@ -20,7 +20,7 @@ const TOTPVerify = () => {
       })
       .catch((err) => {
         // if no session user, go to login
-        if (err.response.status == 404) navigate("/login");
+        if (err.response && err.response.status == 404) navigate("/login");
         else console.log(err);
       });
   }, []);
