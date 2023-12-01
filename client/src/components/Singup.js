@@ -14,10 +14,10 @@ const userTypeOptions = [
 
 const subjects = [
     {
-        name:'maths',
-        value:'maths',
+        name:'math',
+        value:'math',
         checked:false,
-        lableText:'Maths'
+        lableText:'Math'
     },
     {
         name:'biology',
@@ -212,6 +212,9 @@ export default function Singup(){
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
                         onClick={submitForm}
                     >Signup</button>
+                  <br/>
+                  <br/>
+                  <button onClick={() => navigate('/')}>Back to home page</button>
                 </form>
             </div>
         </div>

@@ -79,25 +79,30 @@ StartTime,EndTime,cast(aes_decrypt(student.Email,?) as char)  as StudentEmail,
 cast(aes_decrypt(tutor.email,?) as char) as TutorEmail from Appointments join Users as tutor 
 on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointments.ID=?;
 `
+  const options = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  }
   db.promise()
     .query(q, [process.env.AES_KEY, process.env.AES_KEY, apptID])
     .then(([tuples, _]) => {
       const appt = tuples[0]
+      const startStr=new Date("January 01, 2000 "+appt.StartTime).toLocaleString('en-US', options)
+      const endStr=new Date("January 01, 2000 "+appt.EndTime).toLocaleString('en-US', options)
       const emailToStudent = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with tutor ${appt.TutorFirstName} ${
-          appt.TutorLastName
+        <p>You have an appointment with tutor ${appt.TutorFirstName} ${appt.TutorLastName
         } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
-        from ${appt.StartTime} to ${appt.EndTime}</p>
+        from ${startStr} to ${endStr}</p>
       `
       const emailToTutor = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with student ${appt.StudentFirstName} ${
-          appt.StudentLastName
+        <p>You have an appointment with student ${appt.StudentFirstName} ${appt.StudentLastName
         } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
-        from ${appt.StartTime} to ${appt.EndTime}</p>
+        from ${startStr} to ${endStr}</p>
       `
       transporter
         .sendMail({
@@ -106,7 +111,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
           subject: 'Tutoring Appointment Reminder',
           html: emailToStudent,
         })
-        .then((info) => {})
+        .then((info) => { })
         .catch(console.log)
       transporter
         .sendMail({
@@ -115,7 +120,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
           subject: 'Tutoring Appointment Reminder',
           html: emailToTutor,
         })
-        .then((info) => {})
+        .then((info) => { })
         .catch(console.log)
     })
     .catch(console.log)
@@ -593,7 +598,7 @@ app.get('/tutors/:id', (req, res) => {
 // returns: StudentID, TutorID, tutor Bio, tutor Subject, tutor available hours
 app.get('/students/favorites_list/:StudentID', (req, res) => {
   const q =
-    'select StudentID,TutorID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from FavoritesList join Tutors on TutorID=ID where StudentID=?;'
+    'select FirstName,LastName, StudentID,TutorID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from FavoritesList join Tutors natural join Users on TutorID=ID where StudentID=?;'
   db.query(q, req.params.StudentID, (err, data) => {
     if (err) return res.status(500).send(err)
     return res.status(200).send(data)

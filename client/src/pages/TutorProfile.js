@@ -1,29 +1,37 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import "../App.css";
-import axios from "../config/axios";
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import '../App.css'
+import axios from '../config/axios'
 
 export default function TutorProfilePage() {
-  let { id } = useParams();
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate()
+  let { id } = useParams()
+  const timeOpts = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  }
+  const [user, setUser] = useState(null)
+  const [startStr, setStartStr] = useState('')
+  const [endStr, setEndStr] = useState('')
   const [tutor, setTutor] = useState({
     id: id,
-    first_name: "",
-    last_name: "",
-    bio: "",
+    first_name: '',
+    last_name: '',
+    bio: '',
     profile_picture_url:
-      "https://fastly.picsum.photos/id/1/200/200.jpg?hmac=jZB9EZ0Vtzq-BZSmo7JKBBKJLW46nntxq79VMkCiBG8",
+      'https://fastly.picsum.photos/id/1/200/200.jpg?hmac=jZB9EZ0Vtzq-BZSmo7JKBBKJLW46nntxq79VMkCiBG8',
     subjects: [],
-    available_hours_start: "",
-    available_hours_end: "",
-  });
+    available_hours_start: '',
+    available_hours_end: '',
+  })
   useEffect(() => {
     axios
       .get(`http://localhost:8800/tutors/${id}`)
       .then((response) => {
-        let profile_picture_url = tutor.profile_picture_url;
+        let profile_picture_url = tutor.profile_picture_url
         if (response.data.ProfilePictureID) {
-          profile_picture_url = `http://localhost:8800/images/${response.data.ProfilePictureID}`;
+          profile_picture_url = `http://localhost:8800/${response.data.ProfilePictureID}`
         }
         setTutor({
           ...tutor,
@@ -35,40 +43,52 @@ export default function TutorProfilePage() {
           available_hours_start: response.data.AvailableHoursStart,
           available_hours_end: response.data.AvailableHoursEnd,
           profile_picture_url: profile_picture_url,
-        });
+        })
+        setStartStr(
+          new Date(
+            'January 01, 2000 ' + response.data.AvailableHoursStart,
+          ).toLocaleString('en-US', timeOpts),
+        )
+        setEndStr(
+          new Date(
+            'January 01, 2000 ' + response.data.AvailableHoursEnd,
+          ).toLocaleString('en-US', timeOpts),
+        )
       })
       .catch((error) => {
-        alert(error.response.data.sqlMessage || error);
-      });
-  }, []);
+        alert(error.response.data.sqlMessage || error)
+      })
+  }, [])
   useEffect(() => {
     // get session user
     axios
-      .get("/users/session")
+      .get('/users/session')
       .then((res) => {
-        setUser(res.data);
+        setUser(res.data)
       })
       .catch((err) => {
-        if (err.response.status == 404) alert("no user loggedin");
-        else console.log(err);
-      });
-  }, []);
+        if (err.response.status == 404) {
+          alert('no user logged in')
+          navigate('/')
+        } else console.log(err)
+      })
+  }, [])
   const addFavorites = () => {
     axios
-      .post("/students/favorites_list/" + user.ID + "/" + tutor.id)
+      .post('/students/favorites_list/' + user.ID + '/' + tutor.id)
       .then((res) => {
-        alert("tutor added to favorites list");
+        alert('tutor added to favorites list')
       })
       .catch((err) => {
         // if sql primary key error
         if (err.response.data.errno == 1062)
-          alert("this tutor is already on your favorites list");
+          alert('this tutor is already on your favorites list')
         else {
-          console.log(err);
-          alert("unable to add tutor to favorites list");
+          console.log(err)
+          alert('unable to add tutor to favorites list')
         }
-      });
-  };
+      })
+  }
   return (
     <div className="flex flex-col gap-2 bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <img src={tutor.profile_picture_url} className="rounded-xl w-1/2" />
@@ -92,7 +112,7 @@ export default function TutorProfilePage() {
       <div>
         <h2 className="text-xl font-bold">General availability</h2>
         <h3>
-          Start: {tutor.available_hours_start} End: {tutor.available_hours_end}
+          Start: {startStr} End: {endStr}
         </h3>
       </div>
       <div>
@@ -104,10 +124,11 @@ export default function TutorProfilePage() {
         </a>
       </div>
       {user && user.IsTutor == 0 && (
-        <div>
-          <button onClick={addFavorites}>add to favorites list</button>
-        </div>
+        <button onClick={addFavorites}>add to favorites list</button>
       )}
+      <br />
+      <br />
+      <button onClick={() => navigate(-1)}>Back</button>
     </div>
-  );
+  )
 }

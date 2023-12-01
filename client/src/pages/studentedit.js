@@ -51,8 +51,6 @@ const StudentEditProfile = () => {
     <div>
       <aside className="sidemenu">
         <div className="side-menu-button">
-          <h1>Home</h1>
-          <h1>Calendar</h1>
           <h1>
             {user.FirstName} {user.LastName}
           </h1>
@@ -104,6 +102,9 @@ const StudentEditProfile = () => {
         </div>
       </div>
       <button onClick={handleSaveChanges}>Save Changes</button>
+      <br/>
+      <br/>
+      <button onClick={()=>{navigate('/studentdashboard')}}>Back to dashboard</button>
     </div>
   )
 }

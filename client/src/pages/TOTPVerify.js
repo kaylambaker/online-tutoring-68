@@ -60,6 +60,9 @@ const TOTPVerify = () => {
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={validateCode}
           >Validate Code</button>
+          <br/>
+          <br/>
+          <button onClick={()=>navigate("/logout")}>logout</button>
         </form>
       </div>
     </div>

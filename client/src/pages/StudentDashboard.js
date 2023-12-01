@@ -54,30 +54,31 @@ const StudentDashboard = () => {
   return (
     <div className="dashboard-container">
       <h1>Student Dashboard</h1>
-      {profilePictureID && (
+      <div className="tutor">
         <div className="info">
-          <img
-            src={`http://localhost:8800/` + profilePictureID}
-            alt="Profile"
-            className="profile-picture"
-          />
+          {profilePictureID && (
+            <img
+              src={`http://localhost:8800/` + profilePictureID}
+              alt="Profile"
+              className="profile-picture"
+            />
+          )}
+          <div>
+            <p>Hours Completed: {hour}</p>
+          </div>
+          <button onClick={()=>navigate('/calendar')}>calendar</button>
+          <button onClick={()=>navigate('/studentedit')}>Edit Profile</button>
+          <button onClick={() => navigate('/tutor/search')}>
+            search tutor
+          </button>
+          <button onClick={() => navigate('/students/favorites_list')}>
+            favorites list
+          </button>
+          <button onClick={() => navigate('/')}>home page</button>
+          <button onClick={() => navigate('/TOTPSetup')}>reset 2FA</button>
+          <button onClick={() => navigate('/logout')}>logout</button>
         </div>
-      )}
-      <div>
-        <p>Hours Completed: {hour}</p>
       </div>
-      <div>
-        <Link to="/calendar">View Calendar</Link>
-      </div>
-      <div>
-        <Link to="/studentedit">Edit Profile</Link>
-      </div>
-      <button onClick={() => navigate('/tutor/search')}>search tutor</button>
-      <button onClick={() => navigate('/students/favorites_list')}>
-        favorites list
-      </button>
-      <button onClick={() => navigate('/logout')}>logout</button>
-      <button onClick={() => navigate('/')}>home page</button>
     </div>
   )
 }
