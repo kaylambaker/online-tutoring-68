@@ -648,6 +648,91 @@ app.delete("/tutors/:ID", (req, res) => {
   });
 });
 
+//get details of a specific tutor based on their id
+app.get('/tutors/:id', (req, res) => {
+    const tutorID = req.params.id;
+    const q = 
+    `SELECT
+        users.ID,
+        users.FirstName,
+        users.LastName,
+        users.Email,
+        users.HoursCompleted,
+        tutors.Bio,
+        tutors.Subject,
+        tutors.AvailableHoursStart,
+        tutors.AvailableHoursEnd
+      FROM users
+      INNER JOIN tutors ON users.ID = tutors.ID
+      WHERE users.ID = ?;`;
+  
+    db.query(q, [tutorID], (err, data) => {
+      if (err) return res.json(err);
+      if (data.length === 0) return res.status(404).send('Tutor not found');
+      return res.json(data[0]);
+    });
+  });
+
+// retrive details of all tutors
+app.get('/tutors', (req, res) => {
+    // SQL query to fetch data
+    const q = 'SELECT ...';
+    db.query(q, (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    });
+  });
+
+//add new tutors to the database
+app.post("/tutors", (req, res)=>{
+    const q = "INSERT INTO tutors (`Bio`, `Subject`, `AvailableHoursStart`, `AvailableHoursEnd`) VALUES(?)";
+    const values = [
+        req.body.Bio,
+        req.body.Subject,
+        req.body.AvailableHoursStart,
+        req.body.AvailableHoursEnd
+    ];
+
+    db.query(q, [values], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors has been created succeffully.");
+    });
+});
+
+//end point for delete operation 
+//delete a tutor from database on their id
+app.delete("/tutors/:ID", (req, res)=>{
+    const tutorsID = req.params.ID;
+    const q = "DELETE FROM tutors WHERE ID = ?"
+
+    db.query(q, [tutorsID], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors profile has been deleted succeffully.");
+
+    })
+})
+
+
+//end point for update operation
+//update an existing tutor's information
+app.put("/tutors/:ID", (req, res)=>{
+    const tutorsID = req.params.ID;
+    const q = "UPDATE tutors SET `Bio` = ?, `Subject`= ?, `AvailableHoursStart` = ?, `AvailableHoursEnd` = ? WHERE ID = ?";
+
+    const values = [
+        req.body.Bio,
+        req.body.Subject,
+        req.body.AvailableHoursStart,
+        req.body.AvailableHoursEnd
+    ]
+
+    db.query(q, [... values, tutorsID], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors profile has been updated succeffully.");
+
+    })
+})
+
 //tutor endpoint end
 // ................................. ///
 
