@@ -541,14 +541,18 @@ example session tutor user
 
 ```
 {
-  ID: 70,
-  Email: 'ruha@helsinhi.sr',
-  FirstName: 'Catherine',
-  LastName: 'Gill',
+  ID: 21,
+  Email: 'pa@jege.tk',
+  FirstName: 'Derrick',
+  LastName: 'Piazzesi',
   HoursCompleted: 0,
   ProfilePictureID: null,
   IsTutor: 1,
-  TOTPEnabled: 0,
+  TOTPEnabled: 1,
+  Bio: 'I teach math.',
+  AvailableHoursStart: '12:00:00',
+  AvailableHoursEnd: '15:00:00',
+  Subject: 'Math',
   SessionTOTPVerified: false
 }
 ```
