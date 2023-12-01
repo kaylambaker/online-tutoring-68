@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Form, InputGroup, Button } from 'react-bootstrap'
 import axios from '../config/axios'
 import FormInput from '../components/FormInput'
-import "../App.css";
+import '../App.css'
 
 const TOTPSetup = () => {
   const [user, setUser] = useState(null)
@@ -47,6 +47,8 @@ const TOTPSetup = () => {
         console.log(err)
       })
   }
+  if (!user) return <div>Loading...</div>
+
   return (
     <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <div className="flex flex-col pb-10 place-items-center">
@@ -72,6 +74,12 @@ const TOTPSetup = () => {
           >
             Validate Code
           </button>
+          <br />
+          <br />
+          {user.TOTPEnabled==0 &&(<button onClick={() => navigate('/logout')}>logout</button>)}
+          {user.TOTPEnabled == 1 && (
+            <button onClick={() => navigate(-1)}>Back</button>
+          )}
         </form>
       </div>
     </div>

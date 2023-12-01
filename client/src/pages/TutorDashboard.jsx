@@ -58,19 +58,11 @@ const TutorDashboard = () => {
             <span className="info-label">HoursCompleted:</span> {hours}
           </p>
 
-          <div className="action-buttons">
-            <button className="update">
-              <Link to={`/tutoredit`}>Update the tutor profile</Link>
-            </button>
-          </div>
-
-          <div className="action-buttons">
-            <button className="update">
-              <Link to={`/calendar`}>View The Calendar</Link>
-            </button>
-          </div>
-          <button onClick={() => navigate('/logout')}>logout</button>
+          <button onClick={() => navigate('/calendar')}>calendar </button>
+          <button onClick={() => navigate('/tutoredit')}>edit profile </button>
           <button onClick={() => navigate('/')}>home page</button>
+          <button onClick={() => navigate('/TOTPSetup')}>reset 2FA</button>
+          <button onClick={() => navigate('/logout')}>logout</button>
         </div>
       </div>
     </div>

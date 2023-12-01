@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-// import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import Modal from 'react-modal';
-import axios from 'axios';
+import axios from '../config/axios';
 import CreateEventForm from '../components/CreateEventForm';
 import { useNavigate } from 'react-router-dom'
 
@@ -355,6 +355,9 @@ const MyCalendar = () => {
         <button className="btn-delete-appointment" onClick={handleDeleteAppointment}>
           Delete Appointment
         </button>
+        <br/>
+        <br/>
+        <button onClick={() => user.IsTutor === 1 ? navigate('/TutorDashboard') : navigate('/studentdashboard')}>Back to dashboard</button>
       </div>
     </div>
   );

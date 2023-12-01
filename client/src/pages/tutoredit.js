@@ -69,10 +69,8 @@ const TutorEditProfile = () => {
     <div>
       <aside className="sidemenu">
         <div className="side-menu-button">
-          <h1>Home</h1>
-          <h1>Calendar</h1>
           <h1>
-            {tutor.FirstName} {tutor.LastName}
+            {user.FirstName} {user.LastName}
           </h1>
           <div className="profile-container">
             {user.ProfilePictureID && (
@@ -90,6 +88,28 @@ const TutorEditProfile = () => {
         </div>
       </aside>
 
+      {/* Bio input */}
+      <div className="input-container">
+        <label>First Name: </label>
+        <input
+          type="text"
+          value={tutor.FirstName}
+          name="FirstName"
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      {/* Bio input */}
+      <div className="input-container">
+        <label>Last Name: </label>
+        <input
+          type="text"
+          value={tutor.LastName}
+          name="LastName"
+          onChange={handleInputChange}
+          required
+        />
+      </div>
       {/* Bio input */}
       <div className="input-container">
         <label>Bio: </label>
@@ -152,6 +172,9 @@ const TutorEditProfile = () => {
       <button type="submit" onClick={handleSaveChanges}>
         Save Changes
       </button>
+      <br/>
+      <br/>
+      <button onClick={()=>{navigate('/TutorDashboard')}}>Back to dashboard</button>
     </div>
   )
 }

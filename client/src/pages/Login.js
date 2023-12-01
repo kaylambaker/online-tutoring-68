@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
 import FormInput from '../components/FormInput'
-import "../App.css";
+import '../App.css'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -10,28 +10,30 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const login = async () => {
     axios
-      .get("/users/" + email + "/" + password)
+      .get('/users/' + email + '/' + password)
       .then((res) => {
-        if (res.data.TOTPEnabled == 0) navigate("/TOTPSetup");
-        else navigate("/TOTPVerify");
+        if (res.data.TOTPEnabled == 0) navigate('/TOTPSetup')
+        else navigate('/TOTPVerify')
       })
       .catch((err) => {
-        if (err.response.status == 404) alert("user not found");
-        else if (err.response.status == 401) alert("invalid password");
-        else console.log(err);
-      });
-  };
+        if (err.response.status == 404) alert('user not found')
+        else if (err.response.status == 401) alert('invalid password')
+        else console.log(err)
+      })
+  }
   useEffect(() => {
     axios
-      .get("/users/session")
+      .get('/users/session')
       .then((res) => {
-        res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
+        res.data.IsTutor === 1
+          ? navigate('/tutordashboard')
+          : navigate('/studentdashboard')
       })
       .catch((err) => {
         if (err.response && err.response.status == 404);
-        else console.log(err);
-      });
-  }, []);
+        else console.log(err)
+      })
+  }, [])
   return (
     <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <div className="flex flex-col pb-10 place-items-center">
@@ -40,33 +42,38 @@ const Login = () => {
       </div>
       <div>
         <form id="login-form">
-          <FormInput 
-              id='email'
-              name='email'
-              labelText='Email Address: '
-              type='email'
-              isRequired={true}
-              placeholder='Email'
-              onChange={(e) => setEmail(e.target.value)}
+          <FormInput
+            id="email"
+            name="email"
+            labelText="Email Address: "
+            type="email"
+            isRequired={true}
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
           />
-          <FormInput 
-              id='password'
-              name='password'
-              labelText='Password: '
-              type='password'
-              isRequired={true}
-              placeholder='****'
-              onChange={(e) => setPassword(e.target.value)}
+          <FormInput
+            id="password"
+            name="password"
+            labelText="Password: "
+            type="password"
+            isRequired={true}
+            placeholder="****"
+            onChange={(e) => setPassword(e.target.value)}
           />
           <button
             type="button"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={login}
-          >Login</button>
+          >
+            Login
+          </button>
+          <br/>
+          <br/>
+          <button onClick={() => navigate('/')}>Back to home page</button>
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default Login

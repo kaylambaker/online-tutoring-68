@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from '../config/axios';
-
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import axios from '../config/axios'
 
 export default function FavoritesList() {
-  const [StudentID,setStudentID]=useState(-1)
+  const timeOpts = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  }
+  const [StudentID, setStudentID] = useState(-1)
   const [favorites, setFavorites] = useState([])
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
@@ -29,14 +33,15 @@ export default function FavoritesList() {
 
   useEffect(() => {
     // Fetch favorites
-    axios.get(`http://localhost:8800/students/favorites_list/${StudentID}`)
+    axios
+      .get(`http://localhost:8800/students/favorites_list/${StudentID}`)
       .then(async (response) => {
         if (response.data && response.data.length > 0) {
-          const formattedFavorites = [];
+          const formattedFavorites = []
 
           // Fetch user details for each tutor ID
           for (const favorite of response.data) {
-            const userResponse = await axios.get(`/students/${StudentID}`);
+            const userResponse = await axios.get(`/students/${StudentID}`)
             const tutorDetails = {
               StudentID: favorite.StudentID,
               id: favorite.TutorID,
@@ -44,12 +49,12 @@ export default function FavoritesList() {
               subject: favorite.Subject,
               availableHoursStart: favorite.AvailableHoursStart,
               availableHoursEnd: favorite.AvailableHoursEnd,
-              name: userResponse.data.FirstName + ' ' + userResponse.data.LastName,
-            };
+              // name: userResponse.data.FirstName + ' ' + userResponse.data.LastName,
+              name: favorite.FirstName +" "+favorite.LastName,
+            }
 
-            formattedFavorites.push(tutorDetails);
+            formattedFavorites.push(tutorDetails)
           }
-
 
           setFavorites(formattedFavorites)
         }
@@ -62,7 +67,8 @@ export default function FavoritesList() {
 
   const handleDelete = (tutorID) => {
     // Send delete request to remove the favorite
-    axios.delete(`/students/favorites_list/${StudentID}/${tutorID}`)
+    axios
+      .delete(`/students/favorites_list/${StudentID}/${tutorID}`)
       .then((response) => {
         // Refresh the list after successful deletion
         const updatedFavorites = favorites.filter(
@@ -76,7 +82,7 @@ export default function FavoritesList() {
       })
   }
 
-  if (!user || StudentID==-1) return <div>Loading...</div>
+  if (!user || StudentID == -1) return <div>Loading...</div>
 
   return (
     <div className="container">
@@ -85,27 +91,33 @@ export default function FavoritesList() {
         <div key={favorite.id}>
           <p>Name: {favorite.name}</p>
 
-          <p>Student ID: {favorite.StudentID}</p>
-          <p>Tutor ID: {favorite.id}</p>
           <p>Bio: {favorite.bio}</p>
           <p>Subject: {favorite.subject}</p>
           <p>
-
-            Available Hours: {favorite.availableHoursStart} - {favorite.availableHoursEnd}
-
+            Available Hours: {new Date("January 01, 2000 "+favorite.availableHoursStart).toLocaleString('en-US',timeOpts)} -{' '}
+            {new Date("January 01, 2000 "+favorite.availableHoursEnd).toLocaleString('en-US',timeOpts)}
           </p>
           {/* Button to redirect to the tutor's page */}
           <Link to={`/tutor/${favorite.id}`}>
             <button style={{ marginRight: '10px' }}>View Tutor</button>
           </Link>
 
-          <button onClick={() => handleDelete(favorite.id)}
-            style={{ marginRight: '10px', backgroundColor: 'red', color: 'white' }}> Delete </button>
+          <button
+            onClick={() => handleDelete(favorite.id)}
+            style={{
+              marginRight: '10px',
+              backgroundColor: 'red',
+              color: 'white',
+            }}
+          >
+            {' '}
+            Delete{' '}
+          </button>
 
           <hr />
         </div>
       ))}
+      <button onClick={()=>navigate(-1)}>Back</button>
     </div>
-
-  );
+  )
 }

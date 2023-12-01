@@ -42,6 +42,9 @@ export default function HomePage() {
       {!user && (
         <div>
           <button onClick={() => navigate('/login')}>login</button>
+          <br/>
+          <br/>
+          <button onClick={() => navigate('/signup')}>register</button>
         </div>
       )}
     </div>
