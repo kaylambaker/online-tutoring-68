@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import axios from '../config/axios'
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import axios from '../config/axios';
+
 
 export default function FavoritesList() {
   const [StudentID,setStudentID]=useState(-1)
@@ -28,18 +29,27 @@ export default function FavoritesList() {
 
   useEffect(() => {
     // Fetch favorites
-    axios
-      .get(`http://localhost:8800/students/favorites_list/${StudentID}`)
-      .then((response) => {
+    axios.get(`http://localhost:8800/students/favorites_list/${StudentID}`)
+      .then(async (response) => {
         if (response.data && response.data.length > 0) {
-          const formattedFavorites = response.data.map((favorite) => ({
-            StudentID: favorite.StudentID,
-            id: favorite.TutorID,
-            bio: favorite.Bio,
-            subject: favorite.Subject,
-            availableHoursStart: favorite.AvailableHoursStart,
-            availableHoursEnd: favorite.AvailableHoursEnd,
-          }))
+          const formattedFavorites = [];
+
+          // Fetch user details for each tutor ID
+          for (const favorite of response.data) {
+            const userResponse = await axios.get(`/students/${StudentID}`);
+            const tutorDetails = {
+              StudentID: favorite.StudentID,
+              id: favorite.TutorID,
+              bio: favorite.Bio,
+              subject: favorite.Subject,
+              availableHoursStart: favorite.AvailableHoursStart,
+              availableHoursEnd: favorite.AvailableHoursEnd,
+              name: userResponse.data.FirstName + ' ' + userResponse.data.LastName,
+            };
+
+            formattedFavorites.push(tutorDetails);
+          }
+
 
           setFavorites(formattedFavorites)
         }
@@ -52,8 +62,7 @@ export default function FavoritesList() {
 
   const handleDelete = (tutorID) => {
     // Send delete request to remove the favorite
-    axios
-      .delete(`/students/favorites_list/${StudentID}/${tutorID}`)
+    axios.delete(`/students/favorites_list/${StudentID}/${tutorID}`)
       .then((response) => {
         // Refresh the list after successful deletion
         const updatedFavorites = favorites.filter(
@@ -74,32 +83,29 @@ export default function FavoritesList() {
       <h1>FavoritesList</h1>
       {favorites.map((favorite) => (
         <div key={favorite.id}>
+          <p>Name: {favorite.name}</p>
+
           <p>Student ID: {favorite.StudentID}</p>
           <p>Tutor ID: {favorite.id}</p>
           <p>Bio: {favorite.bio}</p>
           <p>Subject: {favorite.subject}</p>
           <p>
-            Available Hours: {favorite.availableHoursStart} -{' '}
-            {favorite.availableHoursEnd}
+
+            Available Hours: {favorite.availableHoursStart} - {favorite.availableHoursEnd}
+
           </p>
           {/* Button to redirect to the tutor's page */}
           <Link to={`/tutor/${favorite.id}`}>
             <button style={{ marginRight: '10px' }}>View Tutor</button>
           </Link>
-          <button
-            onClick={() => handleDelete(favorite.id)}
-            style={{
-              marginRight: '10px',
-              backgroundColor: 'red',
-              color: 'white',
-            }}
-          >
-            {' '}
-            Delete{' '}
-          </button>
+
+          <button onClick={() => handleDelete(favorite.id)}
+            style={{ marginRight: '10px', backgroundColor: 'red', color: 'white' }}> Delete </button>
+
           <hr />
         </div>
       ))}
     </div>
-  )
+
+  );
 }
