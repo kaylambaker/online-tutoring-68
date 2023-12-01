@@ -57,10 +57,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 const db = mysql.createConnection({
-  host: 3306,
-  user: 'root',
-  password: '',
-  database: 'script_test',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE || 'online_tutoring',
 })
 
 const transporter = nodemailer.createTransport({
@@ -85,14 +85,16 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
       const appt = tuples[0]
       const emailToStudent = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with tutor ${appt.TutorFirstName} ${appt.TutorLastName
+        <p>You have an appointment with tutor ${appt.TutorFirstName} ${
+          appt.TutorLastName
         } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${appt.StartTime} to ${appt.EndTime}</p>
       `
       const emailToTutor = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with student ${appt.StudentFirstName} ${appt.StudentLastName
+        <p>You have an appointment with student ${appt.StudentFirstName} ${
+          appt.StudentLastName
         } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${appt.StartTime} to ${appt.EndTime}</p>
@@ -104,7 +106,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
           subject: 'Tutoring Appointment Reminder',
           html: emailToStudent,
         })
-        .then((info) => { })
+        .then((info) => {})
         .catch(console.log)
       transporter
         .sendMail({
@@ -113,7 +115,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
           subject: 'Tutoring Appointment Reminder',
           html: emailToTutor,
         })
-        .then((info) => { })
+        .then((info) => {})
         .catch(console.log)
     })
     .catch(console.log)
