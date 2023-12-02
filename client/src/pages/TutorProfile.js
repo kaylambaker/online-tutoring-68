@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../App.css'
 import axios from '../config/axios'
+import {Button} from 'react-bootstrap'
 
 export default function TutorProfilePage() {
   const navigate = useNavigate()
@@ -90,19 +91,19 @@ export default function TutorProfilePage() {
       })
   }
   return (
-    <div className="flex flex-col gap-2 bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
+    <div class="padded-div flex flex-col gap-2 bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <img src={tutor.profile_picture_url} className="rounded-xl w-1/2" />
       <h1 className="text-3xl font-bold ">
         {tutor.last_name}, {tutor.first_name}
       </h1>
       <p className="bg-gray-300 p-2 rounded-lg">{tutor.bio}</p>
       <div>
-        <h2 className="text-xl font-bold">Subjects</h2>
+        <h2 className="text-xl font-bold">Subject</h2>
         <ul className="flex gap-2">
           {tutor.subjects.map((subject) => (
             <li
               key={subject}
-              className="bg-blue-600 text-white px-2 py-1 rounded-lg"
+              className="bg-blue-600 px-2 py-1 rounded-lg"
             >
               {subject}
             </li>
@@ -124,11 +125,11 @@ export default function TutorProfilePage() {
         </a>
       </div>
       {user && user.IsTutor == 0 && (
-        <button onClick={addFavorites}>add to favorites list</button>
+        <Button onClick={addFavorites} style={{backgroundColor:"navy",border:"navy"}}>Add to favorites list</Button>
       )}
       <br />
       <br />
-      <button onClick={() => navigate(-1)}>Back</button>
+      <Button onClick={() => navigate(-1)}>Back</Button>
     </div>
   )
 }

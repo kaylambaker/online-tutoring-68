@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
+import { Button } from 'react-bootstrap'
 import '../App.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 const StudentEditProfile = () => {
   const navigate = useNavigate()
@@ -20,7 +22,7 @@ const StudentEditProfile = () => {
       })
       .catch((err) => {
         if (err.response.status == 404) {
-          navigate('/login')
+          navigate('/')
         } else console.log(err)
       })
   }, [])
@@ -48,14 +50,14 @@ const StudentEditProfile = () => {
   if (!student || !user) return <div>Loading...</div>
 
   return (
-    <div>
+    <div class="padded-div">
       <aside className="sidemenu">
-        <div className="side-menu-button">
+        <div className="side-menu-button" >
           <h1>
             {user.FirstName} {user.LastName}
           </h1>
         </div>
-        <div className="profile-container">
+        <div class="profile-container div-div" >
           {student.ProfilePictureID && (
             <img
               src={`http://localhost:8800/` + student.ProfilePictureID}
@@ -66,11 +68,11 @@ const StudentEditProfile = () => {
           )}
           <label htmlFor="profileImage">Profile Picture:</label>
           <input type="file" onChange={handleFile} />
-          <button onClick={handleUpload}>upload</button>
+          <Button onClick={handleUpload}>upload</Button>
         </div>
       </aside>
       {/* Box accept input */}
-      <div className="input-container">
+      <div class="input-container div-div">
         <label htmlFor="firstname">First Name: {student.firstname} </label>
         <input
           type="text"
@@ -101,10 +103,10 @@ const StudentEditProfile = () => {
           />
         </div>
       </div>
-      <button onClick={handleSaveChanges}>Save Changes</button>
+      <Button onClick={handleSaveChanges} style={{backgroundColor:"green",border:"green"}}>Save Changes</Button>
       <br/>
       <br/>
-      <button onClick={()=>{navigate('/studentdashboard')}}>Back to dashboard</button>
+      <Button onClick={()=>{navigate(-1)}}>Back</Button>
     </div>
   )
 }

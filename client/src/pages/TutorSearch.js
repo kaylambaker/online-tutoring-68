@@ -3,6 +3,7 @@ import axios from '../config/axios'
 import { React, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../App.css'
+import { Button } from 'react-bootstrap'
 
 const TutorSearchPage = () => {
   let navigate = useNavigate()
@@ -21,12 +22,14 @@ const TutorSearchPage = () => {
         if (!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
       })
       .catch((err) => {
-        if (err.response.status == 404) navigate('/login')
-        else console.log(err)
+        if (err.response.status == 404) {
+          alert('no user logged in')
+          navigate('/')
+        } else console.log(err)
       })
   }, [])
   return (
-    <div>
+    <div class="padded-div" style={{ backgroundColor: 'white' }}>
       <Container>
         <Form>
           <InputGroup>
@@ -72,15 +75,8 @@ const TutorSearchPage = () => {
           </tbody>
         </Table>
       </Container>
-      <button
-        onClick={() =>
-          user.IsTutor == 1
-            ? navigate('/TutorDashboard')
-            : navigate('/studentdashboard')
-        }
-      >
-        Dashboard
-      </button>
+      <br />
+      <Button onClick={() => navigate(-1)}> Back</Button>
     </div>
   )
 }

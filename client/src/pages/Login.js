@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
 import FormInput from '../components/FormInput'
 import '../App.css'
+import { Button } from 'react-bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -35,7 +37,7 @@ const Login = () => {
       })
   }, [])
   return (
-    <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
+    <div class="padded-div flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <div className="flex flex-col pb-10 place-items-center">
         <h1 className="text-2xl text-blue-500">Welcome to</h1>
         <h1 className="text-2xl text-blue-500">Online Tutoring</h1>
@@ -60,16 +62,17 @@ const Login = () => {
             placeholder="****"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button
+          <Button
+            style={{ backgroundColor: 'green', border: 'green' }}
             type="button"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={login}
           >
             Login
-          </button>
-          <br/>
-          <br/>
-          <button onClick={() => navigate('/')}>Back to home page</button>
+          </Button>
+          <br />
+          <br />
+          <Button onClick={() => navigate('/')}>Back to home page</Button>
         </form>
       </div>
     </div>

@@ -29,7 +29,7 @@ const TOTPSetup = () => {
         // no user logged in
         if (err.response.status == 404) {
           alert('no user logged in')
-          navigate('/login')
+          navigate('/')
         }
       })
   }, [])
@@ -50,7 +50,7 @@ const TOTPSetup = () => {
   if (!user) return <div>Loading...</div>
 
   return (
-    <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
+    <div class="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg padded-div">
       <div className="flex flex-col pb-10 place-items-center">
         <h1 className="text-2xl text-blue-500">Setup TOTP</h1>
         <p>Use an authenticator app to scan the QR code</p>
@@ -67,18 +67,19 @@ const TOTPSetup = () => {
             placeholder="enter TOTP code"
             onChange={(e) => setCode(e.target.value)}
           />
-          <button
-            type="button"
+          <Button
+            type="Button"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={validateCode}
+            style={{backgroundColor:"green",border:"green"}}
           >
             Validate Code
-          </button>
+          </Button>
           <br />
           <br />
-          {user.TOTPEnabled==0 &&(<button onClick={() => navigate('/logout')}>logout</button>)}
+          {user.TOTPEnabled==0 &&(<Button onClick={() => navigate('/logout')}>logout</Button>)}
           {user.TOTPEnabled == 1 && (
-            <button onClick={() => navigate(-1)}>Back</button>
+            <Button onClick={() => navigate(-1)}>Back</Button>
           )}
         </form>
       </div>

@@ -91,7 +91,7 @@ const MyCalendar = () => {
       .catch(err => {
         if (err.response.status == 404) {
           alert("not logged in")
-          navigate("/login")
+          navigate("/")
         }
         else console.log(err);
       })
