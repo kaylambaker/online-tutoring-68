@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../App.css'
 import axios from '../config/axios'
+import {Button } from 'react-bootstrap'
 
 const TutorEditProfile = () => {
   const [tutor, setTutor] = useState(null)
@@ -19,7 +20,7 @@ const TutorEditProfile = () => {
       .catch((err) => {
         if (err.response.status == 404) {
           alert('not logged in')
-          navigate('/login')
+          navigate('/')
         } else console.log(err)
       })
   }
@@ -66,7 +67,7 @@ const TutorEditProfile = () => {
   if (!user || !tutor) return <div>Loading...</div>
 
   return (
-    <div>
+    <div class="padded-div">
       <aside className="sidemenu">
         <div className="side-menu-button">
           <h1>
@@ -83,7 +84,7 @@ const TutorEditProfile = () => {
             )}
             <label htmlFor="profileImage">Profile Picture:</label>
             <input type="file" onChange={handleFile} />
-            <button onClick={handleUpload}>upload</button>
+            <Button onClick={handleUpload}>upload</Button>
           </div>
         </div>
       </aside>
@@ -169,12 +170,12 @@ const TutorEditProfile = () => {
       <br />
       {/* Save Changes button */}
       <br />
-      <button type="submit" onClick={handleSaveChanges}>
+      <Button type="submit" onClick={handleSaveChanges} style={{backgroundColor:"green",border:"green"}}>
         Save Changes
-      </button>
+      </Button>
       <br/>
       <br/>
-      <button onClick={()=>{navigate('/TutorDashboard')}}>Back to dashboard</button>
+      <Button onClick={()=>{navigate(-1)}}>Back</Button>
     </div>
   )
 }

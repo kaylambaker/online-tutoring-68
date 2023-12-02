@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import "../Style.css"; // Import the CSS file
+import { Button } from 'react-bootstrap'
 
 const TutorDashboard = () => {
   const [user, setUser] = useState(null);
@@ -24,7 +25,7 @@ const TutorDashboard = () => {
       .catch(err => {
         if (err.response.status == 404) {
           alert("not logged in")
-          navigate("/login")
+          navigate("/")
         }
         else console.log(err);
       })
@@ -43,7 +44,7 @@ const TutorDashboard = () => {
 
   return (
     <div className="tutor-profile">
-      <h1 className="tutor-heading">TUTOR DASHBOARD</h1>
+      <h1 className="tutor-heading">Tutor Dashboard</h1>
       <div className="tutor">
         <div className="info">
           {profilePictureID && (
@@ -58,11 +59,11 @@ const TutorDashboard = () => {
             <span className="info-label">HoursCompleted:</span> {hours}
           </p>
 
-          <button onClick={() => navigate('/calendar')}>calendar </button>
-          <button onClick={() => navigate('/tutoredit')}>edit profile </button>
-          <button onClick={() => navigate('/')}>home page</button>
-          <button onClick={() => navigate('/TOTPSetup')}>reset 2FA</button>
-          <button onClick={() => navigate('/logout')}>logout</button>
+          <Button onClick={() => navigate('/calendar')}>calendar </Button>
+          <Button onClick={() => navigate('/tutoredit')}>edit profile </Button>
+          <Button onClick={() => navigate('/')}>home page</Button>
+          <Button onClick={() => navigate('/TOTPSetup')}>reset 2FA</Button>
+          <Button onClick={() => navigate('/logout')}>logout</Button>
         </div>
       </div>
     </div>

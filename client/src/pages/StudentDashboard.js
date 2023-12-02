@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
 //import "../styles/StudentDashboard.module.css";
 import '../App.css'
+import { Button } from 'react-bootstrap'
 //import "../StudentDashboard.css";
 
 const StudentDashboard = () => {
@@ -36,7 +37,7 @@ const StudentDashboard = () => {
       .catch((err) => {
         if (err.response.status == 404) {
           alert('not logged in')
-          navigate('/login')
+          navigate('/')
         } else console.log(err)
       })
   }
@@ -52,8 +53,8 @@ const StudentDashboard = () => {
   // Ensure that tutor is not null before accessing its properties
   const profilePictureID = user ? user.ProfilePictureID : null
   return (
-    <div className="dashboard-container">
-      <h1>Student Dashboard</h1>
+    <div className="tutor-profile">
+      <h1 class="tutor-heading">Student Dashboard</h1>
       <div className="tutor">
         <div className="info">
           {profilePictureID && (
@@ -66,17 +67,17 @@ const StudentDashboard = () => {
           <div>
             <p>Hours Completed: {hour}</p>
           </div>
-          <button onClick={()=>navigate('/calendar')}>calendar</button>
-          <button onClick={()=>navigate('/studentedit')}>Edit Profile</button>
-          <button onClick={() => navigate('/tutor/search')}>
+          <Button onClick={()=>navigate('/calendar')}>calendar</Button>
+          <Button onClick={()=>navigate('/studentedit')}>Edit Profile</Button>
+          <Button onClick={() => navigate('/tutor/search')}>
             search tutor
-          </button>
-          <button onClick={() => navigate('/students/favorites_list')}>
+          </Button>
+          <Button onClick={() => navigate('/students/favorites_list')}>
             favorites list
-          </button>
-          <button onClick={() => navigate('/')}>home page</button>
-          <button onClick={() => navigate('/TOTPSetup')}>reset 2FA</button>
-          <button onClick={() => navigate('/logout')}>logout</button>
+          </Button>
+          <Button onClick={() => navigate('/')}>home page</Button>
+          <Button onClick={() => navigate('/TOTPSetup')}>reset 2FA</Button>
+          <Button onClick={() => navigate('/logout')}>logout</Button>
         </div>
       </div>
     </div>

@@ -2,6 +2,9 @@ import axios from '../config/axios'
 import '../App.css'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import {Button } from 'react-bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 export default function HomePage() {
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
@@ -23,8 +26,8 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="home">
-      <h1>Online Tutoring</h1>
+    <div class="home padded-div" style={{backgroundColor:"white"}}>
+      <h1 style={{padding:"20%"}}>Online Tutoring</h1>
       {user && (
         <div>
           <button
@@ -36,15 +39,15 @@ export default function HomePage() {
           >
             dashboard
           </button>
-          <button onClick={() => navigate('/logout')}>logout</button>
+          <Button onClick={() => navigate('/logout')}>logout</Button>
         </div>
       )}
       {!user && (
         <div>
-          <button onClick={() => navigate('/login')}>login</button>
+          <Button onClick={() => navigate('/login')}>login</Button>
           <br/>
           <br/>
-          <button onClick={() => navigate('/signup')}>register</button>
+          <Button onClick={() => navigate('/signup')}>register</Button>
         </div>
       )}
     </div>

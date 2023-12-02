@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import axios from '../config/axios'
+import { Button } from 'react-bootstrap'
 
 export default function FavoritesList() {
   const timeOpts = {
@@ -24,7 +25,7 @@ export default function FavoritesList() {
       .catch((err) => {
         if (err.response.status === 404) {
           alert('No user logged in')
-          navigate('/login')
+          navigate('/')
         } else {
           console.log(err)
         }
@@ -50,7 +51,7 @@ export default function FavoritesList() {
               availableHoursStart: favorite.AvailableHoursStart,
               availableHoursEnd: favorite.AvailableHoursEnd,
               // name: userResponse.data.FirstName + ' ' + userResponse.data.LastName,
-              name: favorite.FirstName +" "+favorite.LastName,
+              name: favorite.FirstName + ' ' + favorite.LastName,
             }
 
             formattedFavorites.push(tutorDetails)
@@ -85,17 +86,23 @@ export default function FavoritesList() {
   if (!user || StudentID == -1) return <div>Loading...</div>
 
   return (
-    <div className="container">
+    <div class="container padded-div">
       <h1>FavoritesList</h1>
       {favorites.map((favorite) => (
-        <div key={favorite.id}>
+        <div key={favorite.id} class="div-div">
           <p>Name: {favorite.name}</p>
 
           <p>Bio: {favorite.bio}</p>
           <p>Subject: {favorite.subject}</p>
           <p>
-            Available Hours: {new Date("January 01, 2000 "+favorite.availableHoursStart).toLocaleString('en-US',timeOpts)} -{' '}
-            {new Date("January 01, 2000 "+favorite.availableHoursEnd).toLocaleString('en-US',timeOpts)}
+            Available Hours:{' '}
+            {new Date(
+              'January 01, 2000 ' + favorite.availableHoursStart,
+            ).toLocaleString('en-US', timeOpts)}{' '}
+            -{' '}
+            {new Date(
+              'January 01, 2000 ' + favorite.availableHoursEnd,
+            ).toLocaleString('en-US', timeOpts)}
           </p>
           {/* Button to redirect to the tutor's page */}
           <Link to={`/tutor/${favorite.id}`}>
@@ -117,7 +124,7 @@ export default function FavoritesList() {
           <hr />
         </div>
       ))}
-      <button onClick={()=>navigate(-1)}>Back</button>
+      <Button onClick={() => navigate(-1)}>Back</Button>
     </div>
   )
 }

@@ -2,71 +2,78 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
 import FormInput from '../components/FormInput'
-import "../App.css";
+import '../App.css'
+import { Button } from 'react-bootstrap'
 
 const TOTPVerify = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [code, setCode] = useState("");
+  const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+  const [code, setCode] = useState('')
   useEffect(() => {
     axios
-      .get("/users/session")
+      .get('/users/session')
       .then((res) => {
         if (res.data.TOTPEnabled == 0) navigate('/TOTPSetup')
         else if (res.data.SessionTOTPVerified) {
-          res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
-        }
-        else setUser(res.data)
+          res.data.IsTutor === 1
+            ? navigate('/tutordashboard')
+            : navigate('/studentdashboard')
+        } else setUser(res.data)
       })
       .catch((err) => {
         // if no session user, go to login
-        if (err.response && err.response.status == 404) navigate("/login");
-        else console.log(err);
-      });
-  }, []);
+        if (err.response && err.response.status == 404) navigate('/login')
+        else console.log(err)
+      })
+  }, [])
   const validateCode = () => {
     axios
-      .get("/verifyTOTP/" + user.ID + "/" + code)
+      .get('/verifyTOTP/' + user.ID + '/' + code)
       .then((res) => {
         // alert('TOTP verified :)')
-        res.data.IsTutor === 1 ? navigate('/tutordashboard') : navigate('/studentdashboard');
+        res.data.IsTutor === 1
+          ? navigate('/tutordashboard')
+          : navigate('/studentdashboard')
       })
       .catch((err) => {
         if (err.response.status == 404) {
-          alert("error: invalid user ID");
-          console.log(err);
-        } else if (err.response.status == 401) alert("incorrect TOTP code");
-        else console.log(err);
-      });
-  };
+          alert('error: invalid user ID')
+          console.log(err)
+        } else if (err.response.status == 401) alert('incorrect TOTP code')
+        else console.log(err)
+      })
+  }
   return (
-    <div className="flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
+    <div class="padded-div flex flex-col bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
       <div className="flex flex-col pb-10 place-items-center">
         <h1 className="text-2xl text-blue-500">Verify TOTP</h1>
       </div>
       <div>
         <form id="totp-verify-form">
-          <FormInput 
-              id='totp-code'
-              name='totp-code'
-              labelText='TOTP Code'
-              type='text'
-              isRequired={true}
-              placeholder='enter TOTP code'
-              onChange={(e) => setCode(e.target.value)}
+          <FormInput
+            id="totp-code"
+            name="totp-code"
+            labelText="TOTP Code"
+            type="text"
+            isRequired={true}
+            placeholder="enter TOTP code"
+            onChange={(e) => setCode(e.target.value)}
           />
-          <button
+          <Button
             type="button"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2"
             onClick={validateCode}
-          >Validate Code</button>
-          <br/>
-          <br/>
-          <button onClick={()=>navigate("/logout")}>logout</button>
+            style={{ backgroundColor: 'green', border: 'green' }}
+          >
+            Validate Code
+          </Button>
+          <br />
+          <br />
+          <Button onClick={() => navigate('/logout')}>logout</Button>
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TOTPVerify;
+export default TOTPVerify
