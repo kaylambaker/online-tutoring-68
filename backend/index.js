@@ -95,16 +95,14 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
       ).toLocaleString('en-US', options)
       const emailToStudent = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with tutor ${appt.TutorFirstName} ${
-          appt.TutorLastName
+        <p>You have an appointment with tutor ${appt.TutorFirstName} ${appt.TutorLastName
         } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${startStr} to ${endStr}</p>
       `
       const emailToTutor = ` 
         <h1>Tutoring Appointment Reminder</h1>
-        <p>You have an appointment with student ${appt.StudentFirstName} ${
-          appt.StudentLastName
+        <p>You have an appointment with student ${appt.StudentFirstName} ${appt.StudentLastName
         } 
         on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${startStr} to ${endStr}</p>
@@ -116,7 +114,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
           subject: 'Tutoring Appointment Reminder',
           html: emailToStudent,
         })
-        .then((info) => {})
+        .then((info) => { })
         .catch(console.log)
       transporter
         .sendMail({
@@ -125,7 +123,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
           subject: 'Tutoring Appointment Reminder',
           html: emailToTutor,
         })
-        .then((info) => {})
+        .then((info) => { })
         .catch(console.log)
     })
     .catch(console.log)
@@ -788,6 +786,19 @@ app.get('/hoursCompleted/:id', (req, res) => {
       return res.status(200).send(data[0])
     })
   })
+})
+
+// get all students
+app.get('/students', (req, res) => {
+  const q = 'select FirstName,LastName,ID from Users natural join Students;'
+  db.promise()
+    .query(q)
+    .then(([tuples, _]) => {
+      return res.status(200).send(tuples)
+    })
+    .catch((err) => {
+      return res.status(500).send(err)
+    })
 })
 
 app.listen(8800, () => {
