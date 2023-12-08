@@ -30,15 +30,17 @@ export default function HomePage() {
       <h1 style={{padding:"20%"}}>Online Tutoring</h1>
       {user && (
         <div>
-          <button
+          <Button
             onClick={
-              user.IsTutor == 1
+              user.IsTutor === 1
                 ? () => navigate('/TutorDashboard')
-                : () => navigate('studentdashboard')
+                : () => navigate('/studentdashboard')
             }
           >
             dashboard
-          </button>
+          </Button>
+          <br/>
+          <br/>
           <Button onClick={() => navigate('/logout')}>logout</Button>
         </div>
       )}

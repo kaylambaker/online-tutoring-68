@@ -57,7 +57,7 @@ const TOTPSetup = () => {
       </div>
       <img src={image} />
       <div>
-        <form id="login-form">
+        <form id="login-form" autocomplete="off">
           <FormInput
             id="totp-code"
             name="totp-code"

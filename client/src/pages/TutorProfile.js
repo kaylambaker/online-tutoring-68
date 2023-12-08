@@ -92,7 +92,7 @@ export default function TutorProfilePage() {
   }
   return (
     <div class="padded-div flex flex-col gap-2 bg-gray-100 rounded-lg py-8 px-10 shadow-lg">
-      <img src={tutor.profile_picture_url} className="rounded-xl w-1/2" />
+      <img src={tutor.profile_picture_url} className="rounded-xl w-1/2" class="profile-picture"/>
       <h1 className="text-3xl font-bold ">
         {tutor.last_name}, {tutor.first_name}
       </h1>
