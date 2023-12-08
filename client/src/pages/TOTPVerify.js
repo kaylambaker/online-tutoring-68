@@ -49,7 +49,7 @@ const TOTPVerify = () => {
         <h1 className="text-2xl text-blue-500">Verify TOTP</h1>
       </div>
       <div>
-        <form id="totp-verify-form">
+        <form id="totp-verify-form" autocomplete="off">
           <FormInput
             id="totp-code"
             name="totp-code"

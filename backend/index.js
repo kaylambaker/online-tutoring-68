@@ -31,7 +31,7 @@ app.use(
     secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { expires: 60 * 60 * 24 }, // 24hrs
+    cookie: { expires: 60 * 60 * 72 }, 
   }),
 )
 app.use(
@@ -97,14 +97,16 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
         <h1>Tutoring Appointment Reminder</h1>
         <p>You have an appointment with tutor ${appt.TutorFirstName} ${appt.TutorLastName
         } 
-        on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
+        on ${appt.AppointmentDate.getMonth() + 1
+        }/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${startStr} to ${endStr}</p>
       `
       const emailToTutor = ` 
         <h1>Tutoring Appointment Reminder</h1>
         <p>You have an appointment with student ${appt.StudentFirstName} ${appt.StudentLastName
         } 
-        on ${appt.AppointmentDate.getMonth()}/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
+        on ${appt.AppointmentDate.getMonth() + 1
+        }/${appt.AppointmentDate.getDate()}/${appt.AppointmentDate.getFullYear()} 
         from ${startStr} to ${endStr}</p>
       `
       transporter
@@ -131,7 +133,7 @@ on TutorID=tutor.ID join Users as student on StudentID=student.ID where Appointm
 
 app.post('/appointments', async (req, res) => {
   const q =
-    "insert into Appointments (StudentID,TutorID,AppointmentDate,StartTime,EndTime,Subject,AppointmentNotes,MeetingLink) values (?,?,str_to_date(?,'%m-%d-%Y'),str_to_date(?,'%T'),str_to_date(?,'%T'),?,?,null);"
+    'insert into Appointments (StudentID,TutorID,AppointmentDate,StartTime,EndTime,Subject,AppointmentNotes,MeetingLink) values (?,?,?,?,?,?,?,null);'
   const values = [
     req.body.StudentID,
     req.body.TutorID,
@@ -250,7 +252,14 @@ app.put('/students/:id', (req, res) => {
 
 //to show all the appointments
 app.get('/Appointments', (req, res) => {
-  const q = 'SELECT * FROM Appointments'
+  // const q = 'SELECT * FROM Appointments'
+  const q = `select a.ID as ID, s.ID as StudentID, 
+  s.FirstName as StudentFirstName,s.LastName as 
+  StudentLastName,t.ID as TutorID,t.FirstName as 
+  TutorFirstName,t.LastName as TutorLastName,AppointmentDate,
+  StartTime,EndTime,Subject,AppointmentNotes,MeetingLink 
+  from Appointments as a join Users as s on StudentID=s.ID 
+  join Users as t on TutorID=t.ID;`
   db.query(q, (err, data) => {
     if (err) return res.json(err)
     return res.json(data)
@@ -300,13 +309,38 @@ app.get('/appointments/:id', (req, res) => {
   })
 })
 
+app.get('/appointments/users/:id', (req, res) => {
+  const q = `select a.ID as ID, s.ID as StudentID, 
+  s.FirstName as StudentFirstName,s.LastName as 
+  StudentLastName,t.ID as TutorID,t.FirstName as 
+  TutorFirstName,t.LastName as TutorLastName,AppointmentDate,
+  StartTime,EndTime,Subject,AppointmentNotes,MeetingLink 
+  from Appointments as a join Users as s on StudentID=s.ID 
+  join Users as t on TutorID=t.ID where StudentID=? or TutorID=?;`
+  db.promise()
+    .query(q, [req.params.id, req.params.id])
+    .then(([tuples, _]) => {
+      return res.status(200).send(tuples)
+    })
+    .catch((err) => {
+      return res.status(500).send(err)
+    })
+})
+
 // Endpoint to select an tutor appointment
 // get appointments by tutor ID
 app.get('/appointments/tutor/:id', (req, res) => {
   const TutorID = req.params.id
 
-  const q =
-    'SELECT ID, StudentID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE TutorID = ?'
+  const q = `select a.ID as ID, s.ID as StudentID, 
+  s.FirstName as StudentFirstName,s.LastName as 
+  StudentLastName,t.ID as TutorID,t.FirstName as 
+  TutorFirstName,t.LastName as TutorLastName,AppointmentDate,
+  StartTime,EndTime,Subject,AppointmentNotes,MeetingLink 
+  from Appointments as a join Users as s on StudentID=s.ID 
+  join Users as t on TutorID=t.ID where TutorID=?;`
+  // const q =
+  //   'SELECT ID, StudentID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE TutorID = ?'
 
   db.query(q, [TutorID], (err, data) => {
     if (err) {
@@ -343,8 +377,16 @@ app.delete('/appointments/tutor/:id', (req, res) => {
 app.get('/appointments/student/:id', (req, res) => {
   const StudentID = req.params.id
 
-  const q =
-    'SELECT ID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE StudentID = ?'
+  // const q =
+  //   'SELECT ID, TutorID, AppointmentDate, StartTime, EndTime, Subject, AppointmentNotes, MeetingLink FROM Appointments WHERE StudentID = ?'
+
+  const q = `select a.ID as ID, s.ID as StudentID, 
+  s.FirstName as StudentFirstName,s.LastName as 
+  StudentLastName,t.ID as TutorID,t.FirstName as 
+  TutorFirstName,t.LastName as TutorLastName,AppointmentDate,
+  StartTime,EndTime,Subject,AppointmentNotes,MeetingLink 
+  from Appointments as a join Users as s on StudentID=s.ID 
+  join Users as t on TutorID=t.ID where StudentID=?;`
 
   db.query(q, [StudentID], (err, data) => {
     if (err) {
@@ -379,8 +421,8 @@ app.post('/createAppointment', (req, res) => {
   const { studentID, tutorID, appointmentDate, startTime, endTime } = req.body
 
   // Define default values for optional fields
-  const defaultSubject = 'Default Subject'
-  const defaultNotes = 'Default Notes'
+  const defaultSubject = ''
+  const defaultNotes = ''
   const defaultMeetingLink = null
 
   const insertQuery = `INSERT INTO Appointments 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import moment from 'moment'
-import { Form ,Button} from 'react-bootstrap'
+import { Form, Button } from 'react-bootstrap'
 import Modal from 'react-modal'
 import axios from '../config/axios'
 import CreateEventForm from '../components/CreateEventForm'
@@ -10,6 +10,11 @@ import { useNavigate } from 'react-router-dom'
 
 const localizer = momentLocalizer(moment)
 
+const timeOpts = {
+  hour: 'numeric',
+  minute: 'numeric',
+  hour12: true,
+}
 const MyCalendar = () => {
   const [otherUsers, setOtherUsers] = useState([]) // users that the user can make an appointment with
   const [userRole, setUserRole] = useState('')
@@ -24,13 +29,14 @@ const MyCalendar = () => {
     title: '',
     start: new Date(),
     end: new Date(),
+    Subject: '',
   })
   //const [filterTutorID, setFilterTutorID] = useState('');
   //const [filterStudentID, setFilterStudentID] = useState('');
   const [deleteAppointmentId, setDeleteAppointmentId] = useState('')
   const [isCreatingEvent, setIsCreatingEvent] = useState(false)
 
-  useEffect(() => {
+  /* useEffect(() => {
     axios
       .get('http://localhost:8800/Appointments')
       .then((res) => {
@@ -64,13 +70,14 @@ const MyCalendar = () => {
           }
         })
 
-        setEvents(transformedEvents)
+        // setEvents(transformedEvents)
+        setEvents(res.data)
       })
       .catch((err) => {
         if (err.response) console.log(err.response)
         else console.log(err)
       })
-  }, [])
+  }, []) */
 
   const getUser = () => {
     axios
@@ -105,8 +112,11 @@ const MyCalendar = () => {
   useEffect(() => {
     getUser()
   }, [])
-
   useEffect(() => {
+    if (userId) fetchAppointments()
+  }, [userId])
+
+  /* useEffect(() => {
     // Only proceed if userId is available
     if (userId) {
       axios
@@ -149,15 +159,17 @@ const MyCalendar = () => {
             })
             .filter((appointment) => appointment !== null)
 
-          setEvents(transformedEvents)
-          setFilteredEvents(transformedEvents)
+          // setEvents(transformedEvents)
+          // setFilteredEvents(transformedEvents)
+          setEvents(res.data)
+          setFilteredEvents(res.data)
         })
         .catch((err) => {
           if (err.response) console.log(err.response)
           else console.log(err)
         })
     }
-  }, [userId])
+  }, [userId]) */
 
   const openModal = (event) => {
     console.log('Selected Event:', event)
@@ -173,24 +185,24 @@ const MyCalendar = () => {
   const createEvent = async () => {
     // Check if required fields are empty
     if (userRole === 'student') {
-      newEvent.studentID = userId
+      newEvent.StudentID = userId
       if (
-        !newEvent.tutorID ||
-        !newEvent.appointmentDate ||
-        !newEvent.startTime ||
-        !newEvent.endTime
+        !newEvent.TutorID ||
+        !newEvent.AppointmentDate ||
+        !newEvent.StartTime ||
+        !newEvent.EndTime
       ) {
         alert('Please fill in all required fields.')
         return
       }
     }
     if (userRole === 'tutor') {
-      newEvent.tutorID = userId
+      newEvent.TutorID = userId
       if (
-        !newEvent.studentID ||
-        !newEvent.appointmentDate ||
-        !newEvent.startTime ||
-        !newEvent.endTime
+        !newEvent.StudentID ||
+        !newEvent.AppointmentDate ||
+        !newEvent.StartTime ||
+        !newEvent.EndTime
       ) {
         alert('Please fill in all required fields.')
         return
@@ -198,7 +210,7 @@ const MyCalendar = () => {
     }
     try {
       const tutorResponse = await axios.get(
-        `http://localhost:8800/tutors/${newEvent.tutorID}`,
+        `http://localhost:8800/tutors/${newEvent.TutorID}`,
       )
       const tutor = tutorResponse.data
       //console.log('Tutor data:', tutor);
@@ -208,12 +220,12 @@ const MyCalendar = () => {
       //console.log('tutor.availableHoursEnd:', tutor.AvailableHoursEnd);
 
       const appointmentStartTime = moment(
-        `${newEvent.appointmentDate} ${newEvent.startTime}`,
+        `${newEvent.AppointmentDate} ${newEvent.StartTime}`,
         'YYYY-MM-DD HH:mm',
         true,
       )
       const appointmentEndTime = moment(
-        `${newEvent.appointmentDate} ${newEvent.endTime}`,
+        `${newEvent.AppointmentDate} ${newEvent.EndTime}`,
         'YYYY-MM-DD HH:mm',
         true,
       )
@@ -263,7 +275,9 @@ const MyCalendar = () => {
 
       // Send the new event data to the server
 
-      await axios.post('http://localhost:8800/createAppointment', newEvent)
+      await axios
+        .post('http://localhost:8800/appointments', newEvent)
+        .catch(console.log)
       fetchAppointments()
       axios
         .then((res) => {
@@ -277,11 +291,12 @@ const MyCalendar = () => {
 
       // Reset the new event form
       setNewEvent({
-        studentID: '',
-        tutorID: '',
-        appointmentDate: '',
-        startTime: '',
-        endTime: '',
+        StudentID: '',
+        TutorID: '',
+        AppointmentDate: '',
+        StartTime: '',
+        EndTime: '',
+        Subject: '',
       })
     } catch (error) {
       //console.error('error creating appointment:', error);
@@ -304,7 +319,7 @@ const MyCalendar = () => {
   const handleDeleteAppointment = () => {
     // Send a DELETE request to the server
     axios
-      .delete(`http://localhost:8800/appointments/${selectedEvent.title}`)
+      .delete(`http://localhost:8800/appointments/${selectedEvent.ID}`)
       .then((res) => {
         console.log('Appointment deleted successfully')
         // Refresh the events by fetching the updated data from the server
@@ -312,6 +327,7 @@ const MyCalendar = () => {
         fetchAppointments()
       })
       .catch((err) => {
+        if (err.response.status === 403) alert(err.response.data)
         console.error('Error deleting appointment:', err)
       })
   }
@@ -342,11 +358,24 @@ const MyCalendar = () => {
             endDate.setHours(Number(endTimeParts[0]), Number(endTimeParts[1]))
 
             return {
-              title: String(ID),
+              ID: ID,
+              title:
+                user.IsTutor === 1
+                  ? appointment.StudentFirstName +
+                    ' ' +
+                    appointment.StudentLastName
+                  : appointment.TutorFirstName +
+                    ' ' +
+                    appointment.TutorLastName,
               start: startDate,
               end: endDate,
               studentID: StudentID,
               tutorID: TutorID,
+              TutorFirstName: appointment.TutorFirstName,
+              TutorLastName: appointment.TutorLastName,
+              StudentFirstName: appointment.StudentFirstName,
+              StudentLastName: appointment.StudentLastName,
+              AppointmentNotes: appointment.AppointmentNotes,
             }
           })
 
@@ -382,11 +411,24 @@ const MyCalendar = () => {
             endDate.setHours(Number(endTimeParts[0]), Number(endTimeParts[1]))
 
             return {
-              title: String(ID),
+              ID: ID,
+              title:
+                user.IsTutor === 1
+                  ? appointment.StudentFirstName +
+                    ' ' +
+                    appointment.StudentLastName
+                  : appointment.TutorFirstName +
+                    ' ' +
+                    appointment.TutorLastName,
               start: startDate,
               end: endDate,
               studentID: StudentID,
               tutorID: TutorID,
+              TutorFirstName: appointment.TutorFirstName,
+              TutorLastName: appointment.TutorLastName,
+              StudentFirstName: appointment.StudentFirstName,
+              StudentLastName: appointment.StudentLastName,
+              AppointmentNotes: appointment.AppointmentNotes,
             }
           })
 
@@ -409,6 +451,7 @@ const MyCalendar = () => {
 
   const handleAppointmentClick = (event) => {
     setSelectedEvent(event)
+    console.log(event)
   }
 
   if (!user) return <div>Loading...</div>
@@ -419,9 +462,15 @@ const MyCalendar = () => {
         <div className="modal">
           <div className="modal-content">
             <h2>Event Details</h2>
-            <p>Title: {selectedEvent.title}</p>
-            <p>Start Time: {moment(selectedEvent.start).format('HH:mm A')}</p>
-            <p>End Time: {moment(selectedEvent.end).format('HH:mm A')}</p>
+            {/*<p>Title: {selectedEvent.title}</p>*/}
+            <p>
+              Start Time:{' '}
+              {selectedEvent.start.toLocaleString('en-US', timeOpts)}
+            </p>
+            <p>
+              End Time: {selectedEvent.end.toLocaleString('en-US', timeOpts)}
+            </p>
+            <p>notes: {selectedEvent.AppointmentNotes}</p>
             {/* Add other appointment details here */}
             <button onClick={handleDeleteAppointment}>
               Delete Appointment
@@ -441,12 +490,15 @@ const MyCalendar = () => {
           />
           <div className="event-form">
             <h2>Create New Appointment</h2>
-            <label>Select {" "+user.IsTutor===1?"student":"tutor"}</label>
-            <Form.Select style={{maxWidth: "300px"}}
+            <label>
+              Select {' ' + user.IsTutor === 1 ? 'student' : 'tutor'}
+            </label>
+            <Form.Select
+              style={{ maxWidth: '300px' }}
               onChange={(e) => {
                 user.IsTutor === 1
-                  ? setNewEvent({ ...newEvent, studentID: e.target.value })
-                  : setNewEvent({ ...newEvent, tutorID: e.target.value })
+                  ? setNewEvent({ ...newEvent, StudentID: e.target.value })
+                  : setNewEvent({ ...newEvent, TutorID: e.target.value })
               }}
             >
               <option disabled selected value>
@@ -454,53 +506,74 @@ const MyCalendar = () => {
                 -- select an option --{' '}
               </option>
               {otherUsers
-                ? otherUsers.map((user) => {
+                ? otherUsers.map((otherUser) => {
                     return (
-                      <option key={user.ID} value={user.ID}>
-                        {user.FirstName + ' ' + user.LastName}
+                      <option key={otherUser.ID} value={otherUser.ID}>
+                        {user.IsTutor === 1
+                          ? otherUser.FirstName + ' ' + otherUser.LastName
+                          : otherUser.FirstName +
+                            ' ' +
+                            otherUser.LastName +
+                            ', ' +
+                            otherUser.Subject}
                       </option>
                     )
                   })
                 : null}
             </Form.Select>
-              <br/>
+            <br />
             <div className="form-group">
               <label htmlFor="appointment-date">Appointment Date: </label>
               <input
                 id="appointment-date"
                 type="date"
-                value={newEvent.appointmentDate}
+                value={newEvent.AppointmentDate}
                 onChange={(e) =>
-                  setNewEvent({ ...newEvent, appointmentDate: e.target.value })
+                  setNewEvent({ ...newEvent, AppointmentDate: e.target.value })
                 }
               />
             </div>
-              <br/>
+            <br />
             <div className="form-group">
               <label htmlFor="start-time">Start Time: </label>
               <input
                 id="start-time"
                 type="time"
-                value={newEvent.startTime}
+                value={newEvent.StartTime}
                 onChange={(e) =>
-                  setNewEvent({ ...newEvent, startTime: e.target.value })
+                  setNewEvent({ ...newEvent, StartTime: e.target.value })
                 }
               />
             </div>
-              <br/>
+            <br />
             <div className="form-group">
               <label htmlFor="end-time">End Time: </label>
               <input
                 id="end-time"
                 type="time"
-                value={newEvent.endTime}
+                value={newEvent.EndTime}
                 onChange={(e) =>
-                  setNewEvent({ ...newEvent, endTime: e.target.value })
+                  setNewEvent({ ...newEvent, EndTime: e.target.value })
                 }
               />
             </div>
-              <br/>
-            <Button style={{backgroundColor:"green",border:"none"}}className="btn-create-event" onClick={createEvent}>
+            <label>Notes: </label>
+            <div className="form-group">
+              <input
+                id="end-time"
+                type="text"
+                value={newEvent.AppointmentNotes}
+                onChange={(e) =>
+                  setNewEvent({ ...newEvent, AppointmentNotes: e.target.value })
+                }
+              />
+            </div>
+            <br />
+            <Button
+              style={{ backgroundColor: 'green', border: 'none' }}
+              className="btn-create-event"
+              onClick={createEvent}
+            >
               Create Appointment
             </Button>
           </div>
@@ -509,26 +582,34 @@ const MyCalendar = () => {
       {selectedEvent && (
         <div>
           <h2>Appointment Details</h2>
-          <p>Appointment Number: {selectedEvent.title}</p>
-          <p>Student: {selectedEvent.studentID}</p>
-          <p>Tutor: {selectedEvent.tutorID}</p>
-          <p>Start Time: {moment(selectedEvent.start).format('HH:mm A')}</p>
-          <p>End Time: {moment(selectedEvent.end).format('HH:mm A')}</p>
-          <Button style={{backgroundColor:"red",border:"none"}}onClick={handleDeleteAppointment}>Delete Appointment</Button>
+          {/*<p>Appointment Number: {selectedEvent.title}</p>*/}
+          <p>
+            Student:{' '}
+            {selectedEvent.StudentFirstName +
+              ' ' +
+              selectedEvent.StudentLastName}
+          </p>
+          <p>
+            Tutor:{' '}
+            {selectedEvent.TutorFirstName + ' ' + selectedEvent.TutorLastName}
+          </p>
+          <p>
+            Start Time: {selectedEvent.start.toLocaleString('en-US', timeOpts)}
+          </p>
+          <p>End Time: {selectedEvent.end.toLocaleString('en-US', timeOpts)}</p>
+          <p>Notes: {selectedEvent.AppointmentNotes}</p>
+          <Button
+            style={{ backgroundColor: 'red', border: 'none' }}
+            onClick={handleDeleteAppointment}
+          >
+            Delete Appointment
+          </Button>
         </div>
       )}
       <div className="event-form">
         <br />
         <br />
-        <Button
-          onClick={() =>
-            user.IsTutor === 1
-              ? navigate('/TutorDashboard')
-              : navigate('/studentdashboard')
-          }
-        >
-          Back to dashboard
-        </Button>
+        <Button onClick={() => navigate(-1)}>Back</Button>
       </div>
     </div>
   )
