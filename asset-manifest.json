@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/online-tutoring-68/static/css/main.aa8477c0.css",
+    "main.js": "/online-tutoring-68/static/js/main.335d319f.js",
+    "static/js/787.d5fa4d18.chunk.js": "/online-tutoring-68/static/js/787.d5fa4d18.chunk.js",
+    "index.html": "/online-tutoring-68/index.html",
+    "main.aa8477c0.css.map": "/online-tutoring-68/static/css/main.aa8477c0.css.map",
+    "main.335d319f.js.map": "/online-tutoring-68/static/js/main.335d319f.js.map",
+    "787.d5fa4d18.chunk.js.map": "/online-tutoring-68/static/js/787.d5fa4d18.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.aa8477c0.css",
+    "static/js/main.335d319f.js"
+  ]
+}
