@@ -4,6 +4,16 @@
 
 use command ```git clone https://github.com/kaylambaker/online-tutoring-68.git```
 
+## setting up the database
+
+### setup schema
+
+to setup the database, create a mysql database and run the create-tables.sql file in it
+
+### insert test data
+
+cd into the backend directory and run the test-data.js file with ```node test-data.js```
+
 ## Running program
 
 ### backend
