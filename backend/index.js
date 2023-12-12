@@ -31,7 +31,7 @@ app.use(
     secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { expires: 60 * 60 * 72 }, 
+    cookie: { expires: 60 * 60 * 72 },
   }),
 )
 app.use(
@@ -143,6 +143,16 @@ app.post('/appointments', async (req, res) => {
     req.body.Subject,
     req.body.AppointmentNotes,
   ]
+
+  const now = new Date()
+  const apptStart = new Date(req.body.AppointmentDate)
+  const [hours, mins] = req.body.StartTime.split(':')
+  apptStart.setHours(Number(hours))
+  apptStart.setHours(Number(mins))
+  console.log(apptStart)
+  if (apptStart < now)
+    return res.status(200).send("cannot make appt in the past")
+
   await db
     .promise()
     .query(q, values)

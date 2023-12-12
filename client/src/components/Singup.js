@@ -82,7 +82,7 @@ function submitForm(event) {
         document.getElementById('availablehoursend').value
     }
     axios
-      .post(`http://localhost:8800/${apiEndpoint}`, data)
+      .post(`/${apiEndpoint}`, data)
       .then((response) => {
         alert('Account created successfully!')
         axios

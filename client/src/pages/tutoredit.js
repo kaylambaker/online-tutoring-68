@@ -16,6 +16,8 @@ const TutorEditProfile = () => {
         if (res.data.IsTutor === 0) navigate('/studentdashboard')
         setUser(res.data)
         setTutor(res.data)
+        console.log(res.data.ProfilePictureID)
+        console.log(process.env.API_HOST)
       })
       .catch((err) => {
         if (err.response.status == 404) {
