@@ -209,9 +209,7 @@ const MyCalendar = () => {
       }
     }
     try {
-      const tutorResponse = await axios.get(
-        `http://localhost:8800/tutors/${newEvent.TutorID}`,
-      )
+      const tutorResponse = await axios.get(`/tutors/${newEvent.TutorID}`)
       const tutor = tutorResponse.data
       //console.log('Tutor data:', tutor);
 
@@ -275,9 +273,7 @@ const MyCalendar = () => {
 
       // Send the new event data to the server
 
-      await axios
-        .post('http://localhost:8800/appointments', newEvent)
-        .catch(console.log)
+      await axios.post('/appointments', newEvent).catch(console.log)
       fetchAppointments()
       axios
         .then((res) => {
@@ -305,7 +301,7 @@ const MyCalendar = () => {
 
   const createAppointment = (appointmentData) => {
     axios
-      .post('http://localhost:8800/createAppointment', appointmentData)
+      .post('/createAppointment', appointmentData)
       .then((res) => {
         fetchAppointments()
         setIsCreatingEvent(false)
@@ -319,7 +315,7 @@ const MyCalendar = () => {
   const handleDeleteAppointment = () => {
     // Send a DELETE request to the server
     axios
-      .delete(`http://localhost:8800/appointments/${selectedEvent.ID}`)
+      .delete(`/appointments/${selectedEvent.ID}`)
       .then((res) => {
         console.log('Appointment deleted successfully')
         // Refresh the events by fetching the updated data from the server
@@ -335,7 +331,7 @@ const MyCalendar = () => {
   const fetchAppointments = () => {
     if (userRole === 'student') {
       axios
-        .get(`http://localhost:8800/Appointments/student/${userId}`)
+        .get(`/Appointments/student/${userId}`)
         .then((res) => {
           const transformedEvents = res.data.map((appointment) => {
             const {
@@ -388,7 +384,7 @@ const MyCalendar = () => {
         })
     } else {
       axios
-        .get(`http://localhost:8800/Appointments/tutor/${userId}`)
+        .get(`/Appointments/tutor/${userId}`)
         .then((res) => {
           const transformedEvents = res.data.map((appointment) => {
             const {

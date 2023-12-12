@@ -35,7 +35,7 @@ export default function FavoritesList() {
   useEffect(() => {
     // Fetch favorites
     axios
-      .get(`http://localhost:8800/students/favorites_list/${StudentID}`)
+      .get(`/students/favorites_list/${StudentID}`)
       .then(async (response) => {
         if (response.data && response.data.length > 0) {
           const formattedFavorites = []

@@ -12,7 +12,7 @@ const TutorSearchPage = () => {
   const [user, setUser] = useState(null)
   useEffect(() => {
     axios
-      .get('http://localhost:8800/tutors')
+      .get('/tutors')
       .then((res) => setTutors(res.data))
       .catch(console.log)
     axios

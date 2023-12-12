@@ -12,7 +12,7 @@ export default function AddToFavorites() {
 
     try {
       
-      const response = await axios.post(`http://localhost:8800/students/favorites_list/${studentID}/${tutorID}`);
+      const response = await axios.post(`/students/favorites_list/${studentID}/${tutorID}`);
 
       console.log('API Response:', response.data);
     } catch (error) {

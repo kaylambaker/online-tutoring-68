@@ -59,7 +59,7 @@ const StudentDashboard = () => {
         <div className="info">
           {profilePictureID && (
             <img
-              src={`http://localhost:8800/` + profilePictureID}
+              src={process.env.API_HOST+`/` + profilePictureID}
               alt="Profile"
               className="profile-picture"
             />

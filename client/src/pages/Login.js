@@ -11,7 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const login = async () => {
-    axios
+    await axios
       .get('/users/' + email + '/' + password)
       .then((res) => {
         if (res.data.TOTPEnabled == 0) navigate('/TOTPSetup')

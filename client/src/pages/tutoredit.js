@@ -40,7 +40,7 @@ const TutorEditProfile = () => {
     const formData = new FormData()
     formData.append('image', file)
     axios
-      .put('http://localhost:8800/users/profile_picture/' + user.ID, formData)
+      .put('/users/profile_picture/' + user.ID, formData)
       .then((res) => console.log(res))
       .catch((err) => console.log(err))
     window.location.reload(false)
@@ -76,7 +76,7 @@ const TutorEditProfile = () => {
           <div className="profile-container">
             {user.ProfilePictureID && (
               <img
-                src={'http://localhost:8800/' + user.ProfilePictureID}
+                src={process.env.API_HOST+'/' + user.ProfilePictureID}
                 alt="Profile"
                 width="50"
                 height="50"

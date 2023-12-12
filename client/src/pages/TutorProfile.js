@@ -28,11 +28,11 @@ export default function TutorProfilePage() {
   })
   useEffect(() => {
     axios
-      .get(`http://localhost:8800/tutors/${id}`)
+      .get(`/tutors/${id}`)
       .then((response) => {
         let profile_picture_url = tutor.profile_picture_url
         if (response.data.ProfilePictureID) {
-          profile_picture_url = `http://localhost:8800/${response.data.ProfilePictureID}`
+          profile_picture_url = process.env.API_HOST+`/${response.data.ProfilePictureID}`
         }
         setTutor({
           ...tutor,

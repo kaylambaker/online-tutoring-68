@@ -13,7 +13,7 @@ const StudentEditProfile = () => {
   const [data, setData] = useState([])
   useEffect(() => {
     axios
-      .get('http://localhost:8800/users/session')
+      .get('/users/session')
       .then((res) => {
         if (!res.data.SessionTOTPVerified) navigate('/TOTPVerify')
         if (res.data.IsTutor === 1) navigate('/tutordashboard')
@@ -42,7 +42,7 @@ const StudentEditProfile = () => {
     const formData = new FormData()
     formData.append('image', file)
     axios
-      .put('http://localhost:8800/users/profile_picture/' + user.ID, formData)
+      .put('/users/profile_picture/' + user.ID, formData)
       .then((_) => window.location.reload(false))
       .catch(console.log)
   }
@@ -60,7 +60,7 @@ const StudentEditProfile = () => {
         <div class="profile-container div-div" >
           {student.ProfilePictureID && (
             <img
-              src={`http://localhost:8800/` + student.ProfilePictureID}
+              src={process.env.API_HOST+`/` + student.ProfilePictureID}
               alt="Profile"
               width="50"
               height="50"
